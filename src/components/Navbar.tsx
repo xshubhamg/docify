@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "./ThemeToggle";
+import { Button } from "./ui/button";
 
 const navItems = [
   {
@@ -44,6 +45,19 @@ const Navbar = () => {
               </span>
             </Link>
           ))}
+
+          <div className="flex items-center gap-2 ml-2">
+            <Button variant="ghost" size="sm" asChild>
+              <Link href="/login">Log in</Link>
+            </Button>
+            <Button
+              size="sm"
+              asChild
+              className="bg-(--color-brand) hover:bg-(--color-brand-hover) text-white dark:text-black"
+            >
+              <Link href="/signup">Sign up</Link>
+            </Button>
+          </div>
 
           <ThemeToggle />
         </nav>
