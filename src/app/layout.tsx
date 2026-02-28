@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Sans, Mona_Sans } from "next/font/google";
+
 import "./globals.css";
+import Navbar from "@/components/Navbar";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 const ibmPlexSans = IBM_Plex_Sans({
   variable: "--font-ibm-plex-serif",
@@ -31,7 +34,15 @@ export default function RootLayout({
       <body
         className={`${ibmPlexSans.variable} ${monaSans.variable} antialiased`}
       >
-        {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Navbar />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );
