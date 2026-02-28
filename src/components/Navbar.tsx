@@ -12,19 +12,15 @@ import { Separator } from "./ui/separator";
 import { Loader2, LogOut, Settings } from "lucide-react";
 import { useState } from "react";
 
-const navItems = [
-  {
-    label: "Documents",
-    href: "/",
-  },
-  {
-    label: "Add new",
-    href: "/documents/new",
-  },
-  {
-    label: "Pricing",
-    href: "/pricing",
-  },
+const publicNavItems = [
+  { label: "Features", href: "/#features" },
+  { label: "Pricing", href: "/pricing" },
+];
+
+const authenticatedNavItems = [
+  { label: "Documents", href: "/dashboard" },
+  { label: "Add new", href: "/documents/new" },
+  { label: "Pricing", href: "/pricing" },
 ];
 
 function getInitials(name?: string | null) {
@@ -43,6 +39,9 @@ const Navbar = () => {
   const { data: session, isPending } = authClient.useSession();
   const [open, setOpen] = useState(false);
 
+  const navItems = session ? authenticatedNavItems : publicNavItems;
+  const logoHref = session ? "/dashboard" : "/";
+
   async function handleSignOut() {
     setOpen(false);
     await authClient.signOut();
@@ -53,7 +52,7 @@ const Navbar = () => {
   return (
     <header className="w-full fixed z-50 bg-(--bg-primary)">
       <div className="wrapper navbar-height py-4 flex justify-between items-center">
-        <Link href="/" className="flex items-center gap-1">
+        <Link href={logoHref} className="flex items-center gap-1">
           <span className="logo-text">Docify</span>
         </Link>
 
