@@ -2,7 +2,10 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { FileUp, FolderOpen } from "lucide-react";
+import Image from "next/image";
+import { FileUp } from "lucide-react";
+import { sampleBooks } from "@/lib/constants";
+import DocumentsGrid from "@/components/DocumentsGrid";
 
 export default async function DashboardPage() {
   const session = await auth.api.getSession({
@@ -13,31 +16,31 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const firstName = session.user.name?.split(" ")[0] ?? "there";
-
   return (
     <div className="container wrapper">
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-        <div className="w-20 h-20 rounded-2xl bg-(--color-brand)/10 flex items-center justify-center mb-8">
-          <FolderOpen className="size-10 text-(--color-brand)" />
+      {/* Header Banner */}
+      <div className="relative w-full h-[240px] md:h-[300px] rounded-2xl overflow-hidden">
+        <Image
+          src="/lofi-girl.jpg"
+          alt="Dashboard banner"
+          fill
+          className="object-cover"
+          priority
+        />
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0 flex items-end p-6 md:p-8">
+          <Link
+            href="/documents/new"
+            className="btn-primary gap-2 font-mona-sans"
+          >
+            <FileUp className="size-5" />
+            Add new doc
+          </Link>
         </div>
-
-        <h1 className="page-title-xl mb-3">
-          Welcome back, {firstName}
-        </h1>
-        <p className="subtitle mb-10 max-w-md">
-          Your documents will appear here. Upload your first document to get
-          started with AI-powered insights.
-        </p>
-
-        <Link
-          href="/documents/new"
-          className="btn-primary gap-2 text-lg px-8 py-4"
-        >
-          <FileUp className="size-5" />
-          Upload your first document
-        </Link>
       </div>
+
+      {/* Documents Section */}
+      <DocumentsGrid books={sampleBooks} />
     </div>
   );
 }
