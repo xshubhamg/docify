@@ -1,4 +1,3 @@
-import { Document, Types } from "mongoose";
 import { ReactNode } from "react";
 import { Control, FieldPath, FieldValues } from "react-hook-form";
 import { LucideIcon } from "lucide-react";
@@ -9,26 +8,28 @@ import { UploadSchema } from "@/lib/zod";
 // DATABASE MODELS
 // ============================================
 
-export interface IBook extends Document {
-  _id: string;
-  clerkId: string;
+export interface IDocument {
+  id: string;
+  userId: string;
   title: string;
   slug: string;
   author: string;
-  persona?: string;
+  voiceId: string;
   fileURL: string;
   fileBlobKey: string;
-  coverURL: string;
+  coverURL?: string;
   coverBlobKey?: string;
   fileSize: number;
+  mimeType: string;
   totalSegments: number;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface IBookSegment extends Document {
-  clerkId: string;
-  bookId: Types.ObjectId;
+export interface IDocumentSegment {
+  id: string;
+  userId: string;
+  documentId: string;
   content: string;
   segmentIndex: number;
   pageNumber?: number;
@@ -37,10 +38,10 @@ export interface IBookSegment extends Document {
   updatedAt: Date;
 }
 
-export interface IVoiceSession extends Document {
-  _id: string;
-  clerkId: string;
-  bookId: Types.ObjectId;
+export interface IVoiceSession {
+  id: string;
+  userId: string;
+  documentId: string;
   startedAt: Date;
   endedAt?: Date;
   durationSeconds: number;
@@ -53,19 +54,23 @@ export interface IVoiceSession extends Document {
 // FORM & INPUT TYPES
 // ============================================
 
-export type BookUploadFormValues = z.infer<typeof UploadSchema>;
+export type DocumentUploadFormValues = z.infer<typeof UploadSchema>;
+export type BookUploadFormValues = DocumentUploadFormValues;
 
-export interface CreateBook {
-  clerkId: string;
+export interface CreateDocument {
+  userId: string;
   title: string;
   author: string;
-  persona?: string;
+  voiceId: string;
   fileURL: string;
   fileBlobKey: string;
   coverURL?: string;
   coverBlobKey?: string;
   fileSize: number;
+  mimeType: string;
 }
+
+export type CreateBook = CreateDocument;
 
 export interface TextSegment {
   text: string;
