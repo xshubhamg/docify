@@ -28,7 +28,7 @@ export default function DocumentsGrid({ books }: DocumentsGridProps) {
         <div className="relative w-full sm:w-72">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-(--text-muted)" />
           <Input
-            placeholder="Search books..."
+            placeholder="Search documents..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="pl-9"

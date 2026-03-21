@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { Control, FieldPath, FieldValues } from "react-hook-form";
 import { LucideIcon } from "lucide-react";
-import z from "zod";
+import { z } from "zod/v4";
 import { UploadSchema } from "@/lib/zod";
 
 // ============================================
@@ -15,9 +15,9 @@ export interface IDocument {
   slug: string;
   author: string;
   voiceId: string;
-  fileURL: string;
+  fileUrl: string;
   fileBlobKey: string;
-  coverURL?: string;
+  coverUrl?: string;
   coverBlobKey?: string;
   fileSize: number;
   mimeType: string;
@@ -62,9 +62,9 @@ export interface CreateDocument {
   title: string;
   author: string;
   voiceId: string;
-  fileURL: string;
+  fileUrl: string;
   fileBlobKey: string;
-  coverURL?: string;
+  coverUrl?: string;
   coverBlobKey?: string;
   fileSize: number;
   mimeType: string;

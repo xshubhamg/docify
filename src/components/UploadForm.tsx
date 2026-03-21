@@ -1,10 +1,12 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { upload } from "@vercel/blob/client";
 import { useForm } from "react-hook-form";
-import { z } from "zod/v4";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Upload, ImageIcon, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { z } from "zod/v4";
 
 import {
   Form,
@@ -15,41 +17,25 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { LoadingOverlay } from "@/components/LoadingOverlay";
-import {
-  voiceOptions,
-  voiceCategories,
-  DEFAULT_VOICE,
-  MAX_FILE_SIZE,
-  ACCEPTED_PDF_TYPES,
-  MAX_IMAGE_SIZE,
-  ACCEPTED_IMAGE_TYPES,
-} from "@/lib/constants";
+import { voiceOptions, voiceCategories, DEFAULT_VOICE } from "@/lib/constants";
+import { authClient } from "@/lib/auth-client";
+import type { CreateDocumentPayload } from "@/lib/documents/types";
+import { buildBlobPathname } from "@/lib/documents/utils";
 import { cn } from "@/lib/utils";
+import { UploadSchema } from "@/lib/zod";
 
-const uploadSchema = z.object({
-  pdf: z
-    .instanceof(File, { message: "Please upload a PDF file" })
-    .refine((f) => ACCEPTED_PDF_TYPES.includes(f.type), "Only PDF files are accepted")
-    .refine((f) => f.size <= MAX_FILE_SIZE, "File must be under 50MB"),
-  coverImage: z
-    .instanceof(File)
-    .refine((f) => ACCEPTED_IMAGE_TYPES.includes(f.type), "Invalid image type")
-    .refine((f) => f.size <= MAX_IMAGE_SIZE, "Image must be under 10MB")
-    .optional(),
-  title: z.string().min(1, "Title is required").max(200),
-  author: z.string().min(1, "Author name is required").max(200),
-  voice: z.string().min(1, "Please select a voice"),
-});
-
-type UploadFormValues = z.infer<typeof uploadSchema>;
+type UploadFormValues = z.infer<typeof UploadSchema>;
 
 export default function UploadForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const pdfInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+  const { data: session } = authClient.useSession();
 
   const form = useForm<UploadFormValues>({
-    resolver: zodResolver(uploadSchema),
+    resolver: zodResolver(UploadSchema),
     defaultValues: {
       title: "",
       author: "",
@@ -60,12 +46,70 @@ export default function UploadForm() {
   const pdfFile = form.watch("pdf");
   const coverImage = form.watch("coverImage");
 
+  async function uploadFile(file: File, kind: "pdf" | "cover") {
+    if (!session?.user.id) {
+      throw new Error("You must be signed in to upload documents.");
+    }
+
+    return upload(buildBlobPathname(session.user.id, kind, file.name), file, {
+      access: "private",
+      contentType: file.type,
+      handleUploadUrl: "/api/blob/upload",
+      clientPayload: JSON.stringify({ kind }),
+      multipart: file.size > 5 * 1024 * 1024,
+    });
+  }
+
   async function onSubmit(values: UploadFormValues) {
     setIsSubmitting(true);
+    setErrorMessage(null);
+
     try {
-      // TODO: implement actual upload
-      console.log("Submitting:", values);
-      await new Promise((r) => setTimeout(r, 2000));
+      const [pdfUpload, coverUpload] = await Promise.all([
+        uploadFile(values.pdf, "pdf"),
+        values.coverImage ? uploadFile(values.coverImage, "cover") : Promise.resolve(null),
+      ]);
+
+      const payload: CreateDocumentPayload = {
+        title: values.title,
+        author: values.author,
+        voice: values.voice,
+        pdf: {
+          pathname: pdfUpload.pathname,
+          url: pdfUpload.url,
+          downloadUrl: pdfUpload.downloadUrl,
+        },
+        coverImage: coverUpload
+          ? {
+              pathname: coverUpload.pathname,
+              url: coverUpload.url,
+              downloadUrl: coverUpload.downloadUrl,
+            }
+          : undefined,
+        pdfFileSize: values.pdf.size,
+        pdfMimeType: values.pdf.type,
+      };
+
+      const response = await fetch("/api/documents", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const result = (await response.json()) as { error?: string; slug?: string };
+
+      if (!response.ok || !result.slug) {
+        throw new Error(result.error ?? "Could not create document.");
+      }
+
+      router.push(`/documents/${result.slug}`);
+      router.refresh();
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Document upload failed.",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -80,6 +124,12 @@ export default function UploadForm() {
           onSubmit={form.handleSubmit(onSubmit)}
           className="new-book-wrapper space-y-8"
         >
+          {errorMessage && (
+            <div className="rounded-[18px] border border-(--red-200) bg-(--red-50) px-4 py-3 text-sm text-(--red-700)">
+              {errorMessage}
+            </div>
+          )}
+
           {/* PDF Upload */}
           <FormField
             control={form.control}
@@ -91,7 +141,7 @@ export default function UploadForm() {
                   <div
                     className={cn(
                       "upload-dropzone border-2 border-dashed border-(--border-medium)",
-                      pdfFile && "upload-dropzone-uploaded"
+                      pdfFile && "upload-dropzone-uploaded",
                     )}
                     onClick={() => pdfInputRef.current?.click()}
                   >
@@ -147,7 +197,7 @@ export default function UploadForm() {
                   <div
                     className={cn(
                       "upload-dropzone border-2 border-dashed border-(--border-medium)",
-                      coverImage && "upload-dropzone-uploaded"
+                      coverImage && "upload-dropzone-uploaded",
                     )}
                     onClick={() => imageInputRef.current?.click()}
                   >
@@ -299,7 +349,7 @@ function VoiceGroup({
                 "voice-selector-option",
                 isSelected
                   ? "voice-selector-option-selected"
-                  : "voice-selector-option-default"
+                  : "voice-selector-option-default",
               )}
             >
               <input

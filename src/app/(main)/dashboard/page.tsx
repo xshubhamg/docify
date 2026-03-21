@@ -1,10 +1,10 @@
 import { auth } from "@/lib/auth";
+import { listDocumentsForUser } from "@/lib/documents/queries";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { FileUp } from "lucide-react";
-import { sampleBooks } from "@/lib/constants";
 import DocumentsGrid from "@/components/DocumentsGrid";
 
 export default async function DashboardPage() {
@@ -15,6 +15,8 @@ export default async function DashboardPage() {
   if (!session) {
     redirect("/login");
   }
+
+  const documents = await listDocumentsForUser(session.user.id);
 
   return (
     <div className="container wrapper">
@@ -40,7 +42,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Documents Section */}
-      <DocumentsGrid books={sampleBooks} />
+      <DocumentsGrid books={documents} />
     </div>
   );
 }

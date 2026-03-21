@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -146,9 +147,11 @@ export function LoginForm({
             </FieldGroup>
           </form>
           <div className="bg-(--bg-tertiary) relative hidden md:block">
-            <img
+            <Image
               src="/retro-mario.png"
-              alt="Image"
+              alt="Retro Mario illustration"
+              fill
+              sizes="50vw"
               className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.6]"
             />
           </div>
