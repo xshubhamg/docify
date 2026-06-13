@@ -1,10 +1,17 @@
-import { randomUUID } from "node:crypto";
-
 import { MAX_FILE_SIZE, MAX_IMAGE_SIZE, voiceOptions } from "@/lib/constants";
+import { DocumentFlowError } from "@/lib/documents/errors";
 import type { SegmentInsert } from "@/lib/documents/types";
 
 const WORDS_PER_SEGMENT = 180;
 const WORD_OVERLAP = 30;
+
+function generateUuid() {
+  if (typeof crypto?.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+
+  throw new Error("crypto.randomUUID is not available in this runtime.");
+}
 
 export function sanitizeFilename(filename: string) {
   return filename
@@ -19,7 +26,19 @@ export function buildBlobPathname(
   kind: "pdf" | "cover",
   filename: string,
 ) {
-  return `users/${userId}/${kind}/${randomUUID()}-${sanitizeFilename(filename)}`;
+  return `users/${userId}/${kind}/${generateUuid()}-${sanitizeFilename(filename)}`;
+}
+
+export function assertOwnedBlobPathname(
+  userId: string,
+  kind: "pdf" | "cover",
+  pathname: string,
+) {
+  const expectedPrefix = `users/${userId}/${kind}/`;
+
+  if (!pathname.startsWith(expectedPrefix)) {
+    throw new DocumentFlowError("Uploaded file does not belong to this account.", 403);
+  }
 }
 
 export function createSlug(value: string) {
@@ -31,7 +50,7 @@ export function createSlug(value: string) {
     .replace(/-+/g, "-")
     .replace(/^-|-$/g, "");
 
-  return slug || `document-${randomUUID().slice(0, 8)}`;
+  return slug || `document-${generateUuid().slice(0, 8)}`;
 }
 
 export function ensureVoiceKey(voice: string) {
@@ -44,17 +63,17 @@ export function ensureVoiceKey(voice: string) {
 
 export function assertPdfConstraints(fileSize: number, mimeType: string) {
   if (mimeType !== "application/pdf") {
-    throw new Error("Only PDF files are supported.");
+    throw new DocumentFlowError("Only PDF files are supported.", 422);
   }
 
   if (fileSize > MAX_FILE_SIZE) {
-    throw new Error("PDF must be 50MB or smaller.");
+    throw new DocumentFlowError("PDF must be 50MB or smaller.", 422);
   }
 }
 
 export function assertImageConstraints(mimeType: string) {
   if (!mimeType.startsWith("image/")) {
-    throw new Error("Cover image must be an image file.");
+    throw new DocumentFlowError("Cover image must be an image file.", 422);
   }
 }
 

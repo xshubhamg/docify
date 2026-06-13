@@ -2,12 +2,14 @@ import "server-only";
 
 import { db } from "@/lib/db";
 import { document, documentSegment } from "@/lib/db/schema";
+import { DocumentFlowError } from "@/lib/documents/errors";
 import { extractPdfPages } from "@/lib/documents/pdf";
 import { getUniqueDocumentSlug } from "@/lib/documents/queries";
 import { deleteBlob, getPrivateBlob } from "@/lib/documents/storage";
 import type { CreateDocumentPayload } from "@/lib/documents/types";
 import {
   assertImageConstraints,
+  assertOwnedBlobPathname,
   assertPdfConstraints,
   ensureVoiceKey,
   isImageTooLarge,
@@ -17,33 +19,45 @@ export async function createDocumentFromUploads(
   userId: string,
   payload: CreateDocumentPayload,
 ) {
-  assertPdfConstraints(payload.pdfFileSize, payload.pdfMimeType);
   ensureVoiceKey(payload.voice);
+  assertOwnedBlobPathname(userId, "pdf", payload.pdf.pathname);
 
   if (payload.coverImage) {
-    const coverMetadata = await getPrivateBlob(payload.coverImage.pathname);
-    if (coverMetadata?.statusCode !== 200) {
-      throw new Error("Uploaded cover image could not be verified.");
-    }
-
-    assertImageConstraints(coverMetadata.blob.contentType);
-
-    if (isImageTooLarge(coverMetadata.blob.size)) {
-      throw new Error("Cover image must be 10MB or smaller.");
-    }
+    assertOwnedBlobPathname(userId, "cover", payload.coverImage.pathname);
   }
-
-  const pdfResult = await getPrivateBlob(payload.pdf.pathname);
-
-  if (pdfResult?.statusCode !== 200 || !pdfResult.stream) {
-    throw new Error("Uploaded PDF could not be fetched.");
-  }
-
-  const { segments } = await extractPdfPages(pdfResult.stream);
-  const slug = await getUniqueDocumentSlug(payload.title);
-  const documentId = crypto.randomUUID();
 
   try {
+    let coverUrl: string | null = null;
+    let coverBlobKey: string | null = null;
+
+    if (payload.coverImage) {
+      const coverMetadata = await getPrivateBlob(payload.coverImage.pathname);
+      if (coverMetadata?.statusCode !== 200) {
+        throw new DocumentFlowError("Uploaded cover image could not be verified.", 422);
+      }
+
+      assertImageConstraints(coverMetadata.blob.contentType);
+
+      if (isImageTooLarge(coverMetadata.blob.size)) {
+        throw new DocumentFlowError("Cover image must be 10MB or smaller.", 422);
+      }
+
+      coverUrl = payload.coverImage.url;
+      coverBlobKey = payload.coverImage.pathname;
+    }
+
+    const pdfResult = await getPrivateBlob(payload.pdf.pathname);
+
+    if (pdfResult?.statusCode !== 200 || !pdfResult.stream) {
+      throw new DocumentFlowError("Uploaded PDF could not be fetched.", 422);
+    }
+
+    assertPdfConstraints(pdfResult.blob.size, pdfResult.blob.contentType);
+
+    const { segments } = await extractPdfPages(pdfResult.stream);
+    const slug = await getUniqueDocumentSlug(payload.title);
+    const documentId = crypto.randomUUID();
+
     await db.transaction(async (tx) => {
       await tx.insert(document).values({
         id: documentId,
@@ -54,10 +68,10 @@ export async function createDocumentFromUploads(
         voiceId: payload.voice,
         fileUrl: payload.pdf.url,
         fileBlobKey: payload.pdf.pathname,
-        coverUrl: payload.coverImage?.url ?? null,
-        coverBlobKey: payload.coverImage?.pathname ?? null,
-        fileSize: payload.pdfFileSize,
-        mimeType: payload.pdfMimeType,
+        coverUrl,
+        coverBlobKey,
+        fileSize: pdfResult.blob.size,
+        mimeType: pdfResult.blob.contentType,
         totalSegments: segments.length,
       });
 
@@ -75,17 +89,18 @@ export async function createDocumentFromUploads(
         );
       }
     });
+
+    return {
+      id: documentId,
+      slug,
+      totalSegments: segments.length,
+    };
   } catch (error) {
     await Promise.allSettled([
       deleteBlob(payload.pdf.pathname),
       payload.coverImage ? deleteBlob(payload.coverImage.pathname) : Promise.resolve(),
     ]);
+
     throw error;
   }
-
-  return {
-    id: documentId,
-    slug,
-    totalSegments: segments.length,
-  };
 }

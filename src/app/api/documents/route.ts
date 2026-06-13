@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
+import { ZodError } from "zod/v4";
 
 import { auth } from "@/lib/auth";
+import {
+  isDocumentFlowError,
+} from "@/lib/documents/errors";
 import { listDocumentsForUser } from "@/lib/documents/queries";
 import { createDocumentFromUploads } from "@/lib/documents/service";
 import { createDocumentSchema } from "@/lib/zod";
@@ -34,9 +38,20 @@ export async function POST(request: Request) {
 
     return NextResponse.json(created, { status: 201 });
   } catch (error) {
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        { error: "Invalid document payload.", details: error.issues },
+        { status: 400 },
+      );
+    }
+
+    if (isDocumentFlowError(error)) {
+      return NextResponse.json({ error: error.message }, { status: error.statusCode });
+    }
+
     const message =
       error instanceof Error ? error.message : "Failed to create document.";
 
-    return NextResponse.json({ error: message }, { status: 400 });
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
