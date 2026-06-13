@@ -60,15 +60,47 @@ export default function UploadForm() {
     });
   }
 
+  async function cleanupUploadedFiles(pathnames: string[]) {
+    if (!pathnames.length) {
+      return;
+    }
+
+    await fetch("/api/blob/cleanup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ pathnames }),
+    });
+  }
+
   async function onSubmit(values: UploadFormValues) {
     setIsSubmitting(true);
     setErrorMessage(null);
 
     try {
-      const [pdfUpload, coverUpload] = await Promise.all([
+      const uploadResults = await Promise.allSettled([
         uploadFile(values.pdf, "pdf"),
         values.coverImage ? uploadFile(values.coverImage, "cover") : Promise.resolve(null),
       ]);
+
+      const successfulUploads = uploadResults.flatMap((result) =>
+        result.status === "fulfilled" && result.value ? [result.value] : [],
+      );
+
+      const failedUpload = uploadResults.find((result) => result.status === "rejected");
+      if (failedUpload?.status === "rejected") {
+        await cleanupUploadedFiles(successfulUploads.map((upload) => upload.pathname));
+        throw failedUpload.reason;
+      }
+
+      const [pdfUpload, coverUpload] = uploadResults.map((result) =>
+        result.status === "fulfilled" ? result.value : null,
+      );
+
+      if (!pdfUpload) {
+        throw new Error("PDF upload did not complete.");
+      }
 
       const payload: CreateDocumentPayload = {
         title: values.title,
@@ -101,6 +133,11 @@ export default function UploadForm() {
       const result = (await response.json()) as { error?: string; slug?: string };
 
       if (!response.ok || !result.slug) {
+        await cleanupUploadedFiles(
+          [pdfUpload.pathname, coverUpload?.pathname].filter(
+            (pathname): pathname is string => Boolean(pathname),
+          ),
+        );
         throw new Error(result.error ?? "Could not create document.");
       }
 
