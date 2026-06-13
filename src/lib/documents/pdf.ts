@@ -1,5 +1,8 @@
 import "server-only";
 
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+
 import { buildSegmentsFromPages } from "@/lib/documents/utils";
 
 interface ExtractedPage {
@@ -15,6 +18,11 @@ async function streamToUint8Array(stream: ReadableStream<Uint8Array>) {
 export async function extractPdfPages(stream: ReadableStream<Uint8Array>) {
   const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
   const data = await streamToUint8Array(stream);
+
+  pdfjs.GlobalWorkerOptions.workerSrc = pathToFileURL(
+    path.join(process.cwd(), "node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs"),
+  ).toString();
+
   const loadingTask = pdfjs.getDocument({
     data,
     useSystemFonts: true,
