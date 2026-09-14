@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 
 import { auth } from "@/lib/auth";
-import { getDocumentReaderData } from "@/lib/documents/queries";
+import {
+  deleteDocumentForUser,
+  getDocumentReaderData,
+} from "@/lib/documents/queries";
+import { deleteBlob } from "@/lib/documents/storage";
 
 export async function GET(
   request: Request,
@@ -23,4 +27,34 @@ export async function GET(
   }
 
   return NextResponse.json({ document });
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ slug: string }> },
+) {
+  const session = await auth.api.getSession({
+    headers: request.headers,
+  });
+
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { slug } = await params;
+  const deleted = await deleteDocumentForUser(session.user.id, slug);
+
+  if (!deleted) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  // DB row is the source of truth (already deleted above). Blob cleanup is
+  // best-effort; orphans are tolerable until the storage GC pass lands.
+  await Promise.allSettled(
+    [deleted.fileBlobKey, deleted.coverBlobKey]
+      .filter((key): key is string => Boolean(key))
+      .map((key) => deleteBlob(key)),
+  );
+
+  return NextResponse.json({ ok: true });
 }

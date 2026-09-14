@@ -2,7 +2,16 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import { BookOpenText, Loader2, Mic, MicOff, Sparkles, Waves } from "lucide-react";
+import { useRouter } from "next/navigation";
+import {
+  BookOpenText,
+  Loader2,
+  Mic,
+  MicOff,
+  Sparkles,
+  Trash2,
+  Waves,
+} from "lucide-react";
 import Vapi from "@vapi-ai/web";
 import { Document, Page, pdfjs } from "react-pdf";
 
@@ -34,6 +43,24 @@ type TranscriptMessage = {
   role: "assistant" | "user";
   transcript: string;
 };
+
+type PastVoiceSession = {
+  id: string;
+  startedAt: string;
+  endedAt: string | null;
+  durationSeconds: number;
+};
+
+function formatSessionDuration(totalSeconds: number) {
+  if (totalSeconds < 60) {
+    return `${totalSeconds}s`;
+  }
+
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  return seconds ? `${minutes}m ${seconds}s` : `${minutes}m`;
+}
 
 const statusClassMap: Record<VoiceStatus, string> = {
   ready: "vapi-status-dot-ready",
@@ -70,6 +97,9 @@ function DocumentReader({
     null,
   );
   const [volumeLevel, setVolumeLevel] = useState(0);
+  const [pastSessions, setPastSessions] = useState<PastVoiceSession[]>([]);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const router = useRouter();
 
   const publicKey = process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY;
   const viewerShellRef = useRef<HTMLDivElement>(null);
@@ -81,6 +111,74 @@ function DocumentReader({
 
   const voice = voiceOptions[document.voiceId as keyof typeof voiceOptions];
   const canStartVoice = Boolean(publicKey && ASSISTANT_ID);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadPastSessions() {
+      try {
+        const response = await fetch(
+          `/api/documents/${document.slug}/voice-sessions`,
+        );
+
+        if (!response.ok) {
+          return;
+        }
+
+        const payload = (await response.json()) as {
+          voiceSessions?: PastVoiceSession[];
+        };
+
+        if (!cancelled && Array.isArray(payload.voiceSessions)) {
+          setPastSessions(payload.voiceSessions);
+        }
+      } catch {
+        // History is supplementary; the reader works fine without it.
+      }
+    }
+
+    void loadPastSessions();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [document.slug]);
+
+  async function handleDelete() {
+    if (isDeleting) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Delete "${document.title}"? This removes the file, segments, and voice history.`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setIsDeleting(true);
+
+    try {
+      const response = await fetch(`/api/documents/${document.slug}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Could not delete the document.");
+      }
+
+      router.push("/dashboard");
+      router.refresh();
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Could not delete the document.";
+      setErrorMessage(message);
+      setIsDeleting(false);
+    }
+  }
 
   const finalizeVoiceSession = useCallback(async () => {
     const sessionId = activeVoiceSessionIdRef.current;
@@ -410,6 +508,19 @@ function DocumentReader({
               <span className="rounded-full bg-(--bg-card) px-3 py-2 text-xs font-medium text-(--text-secondary)">
                 Voice: {getVoiceName(document.voiceId)}
               </span>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={isDeleting || callActive}
+                title="Delete document"
+                className="rounded-full bg-(--bg-card) px-3 py-2 text-xs font-medium text-(--red-700) transition-colors hover:bg-(--red-50) disabled:opacity-50 cursor-pointer"
+              >
+                {isDeleting ? (
+                  <Loader2 className="size-3.5 animate-spin" />
+                ) : (
+                  <Trash2 className="size-3.5" />
+                )}
+              </button>
             </div>
           </div>
         </div>
@@ -651,6 +762,47 @@ function DocumentReader({
                   </div>
                 </div>
               </div>
+            </div>
+
+            <div className="rounded-[20px] bg-(--bg-card) p-4">
+              <div className="mb-3 flex items-center justify-between">
+                <h2 className="font-serif text-lg font-semibold text-(--text-primary)">
+                  Past Conversations
+                </h2>
+                <span className="text-xs uppercase tracking-[0.18em] text-(--text-muted)">
+                  {pastSessions.length}
+                </span>
+              </div>
+
+              {pastSessions.length ? (
+                <ul className="max-h-48 space-y-2 overflow-y-auto pr-1">
+                  {pastSessions.slice(0, 5).map((pastSession) => (
+                    <li
+                      key={pastSession.id}
+                      className="flex items-center justify-between gap-2 rounded-[14px] bg-(--bg-secondary) px-3.5 py-2.5 text-sm"
+                    >
+                      <span className="text-(--text-secondary)">
+                        {new Date(pastSession.startedAt).toLocaleDateString(
+                          undefined,
+                          {
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          },
+                        )}
+                      </span>
+                      <span className="font-medium text-(--text-primary)">
+                        {formatSessionDuration(pastSession.durationSeconds)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm leading-6 text-(--text-secondary)">
+                  No voice conversations yet. Your history will appear here.
+                </p>
+              )}
             </div>
 
             <div className="vapi-transcript-wrapper rounded-[20px] bg-(--bg-card) p-4">

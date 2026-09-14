@@ -87,6 +87,47 @@ export async function getDocumentBySlugForUser(userId: string, slug: string) {
   return rows[0] ?? null;
 }
 
+export async function deleteDocumentForUser(userId: string, slug: string) {
+  const doc = await getDocumentBySlugForUser(userId, slug);
+
+  if (!doc) {
+    return null;
+  }
+
+  // Segments + voice sessions cascade via FK onDelete. Caller deletes blobs.
+  await db
+    .delete(document)
+    .where(and(eq(document.id, doc.id), eq(document.userId, userId)));
+
+  return {
+    fileBlobKey: doc.fileBlobKey,
+    coverBlobKey: doc.coverBlobKey,
+  };
+}
+
+export async function listVoiceSessionsForDocument(
+  userId: string,
+  documentId: string,
+  limit = 20,
+) {
+  return db
+    .select({
+      id: voiceSession.id,
+      startedAt: voiceSession.startedAt,
+      endedAt: voiceSession.endedAt,
+      durationSeconds: voiceSession.durationSeconds,
+    })
+    .from(voiceSession)
+    .where(
+      and(
+        eq(voiceSession.userId, userId),
+        eq(voiceSession.documentId, documentId),
+      ),
+    )
+    .orderBy(desc(voiceSession.startedAt))
+    .limit(limit);
+}
+
 export async function getDocumentReaderData(
   userId: string,
   slug: string,

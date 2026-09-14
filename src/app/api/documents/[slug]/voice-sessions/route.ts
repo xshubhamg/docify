@@ -4,7 +4,35 @@ import { auth } from "@/lib/auth";
 import {
   createVoiceSession,
   getDocumentBySlugForUser,
+  listVoiceSessionsForDocument,
 } from "@/lib/documents/queries";
+
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ slug: string }> },
+) {
+  const session = await auth.api.getSession({
+    headers: request.headers,
+  });
+
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { slug } = await params;
+  const doc = await getDocumentBySlugForUser(session.user.id, slug);
+
+  if (!doc) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  const voiceSessions = await listVoiceSessionsForDocument(
+    session.user.id,
+    doc.id,
+  );
+
+  return NextResponse.json({ voiceSessions });
+}
 
 export async function POST(
   request: Request,
