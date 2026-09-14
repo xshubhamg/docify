@@ -43,6 +43,26 @@ export interface DocumentSegmentPreview {
   content: string;
 }
 
+export interface DocumentContextSegment {
+  segmentIndex: number;
+  pageNumber: number | null;
+  wordCount: number;
+  content: string;
+}
+
+export interface DocumentContextResult {
+  document: {
+    id: string;
+    title: string;
+    author: string;
+    slug: string;
+    voiceId: string;
+    totalSegments: number;
+  };
+  query: string;
+  segments: DocumentContextSegment[];
+}
+
 export interface DocumentReaderData {
   id: string;
   title: string;

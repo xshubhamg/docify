@@ -6,12 +6,14 @@ import { db } from "@/lib/db";
 import { document, documentSegment, voiceSession } from "@/lib/db/schema";
 import type {
   DocumentCardItem,
+  DocumentContextResult,
   DocumentReaderData,
   DocumentSegmentPreview,
 } from "@/lib/documents/types";
 import { createSlug, truncateText } from "@/lib/documents/utils";
 
 const DEFAULT_COVER_URL = "/default-cover.svg";
+const CONTEXT_CONTENT_MAX_LENGTH = 1500;
 
 function buildCoverUrl(slug: string, hasCover: boolean) {
   if (!hasCover) {
@@ -115,6 +117,90 @@ export async function getDocumentReaderData(
     fileUrl: `/api/documents/${doc.slug}/file`,
     coverUrl: buildCoverUrl(doc.slug, Boolean(doc.coverBlobKey)),
     segments: segments.map(toSegmentPreview),
+  };
+}
+
+function scoreSegmentContent(content: string, terms: string[]) {
+  const haystack = content.toLowerCase();
+  let score = 0;
+
+  for (const term of terms) {
+    let fromIndex = 0;
+    let hits = 0;
+
+    while (hits < 20) {
+      const found = haystack.indexOf(term, fromIndex);
+
+      if (found === -1) {
+        break;
+      }
+
+      score += 1;
+      hits += 1;
+      fromIndex = found + term.length;
+    }
+  }
+
+  return score;
+}
+
+export async function searchDocumentSegments(
+  userId: string,
+  slug: string,
+  query: string,
+  limit: number,
+): Promise<DocumentContextResult | null> {
+  const doc = await getDocumentBySlugForUser(userId, slug);
+
+  if (!doc) {
+    return null;
+  }
+
+  const rows = await db
+    .select()
+    .from(documentSegment)
+    .where(eq(documentSegment.documentId, doc.id))
+    .orderBy(asc(documentSegment.segmentIndex));
+
+  const terms = query
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter((term) => term.length > 2);
+
+  let picked = rows;
+
+  if (terms.length) {
+    const matched = rows
+      .map((row) => ({ row, score: scoreSegmentContent(row.content, terms) }))
+      .filter((entry) => entry.score > 0)
+      .sort(
+        (first, second) =>
+          second.score - first.score ||
+          first.row.segmentIndex - second.row.segmentIndex,
+      )
+      .map((entry) => entry.row);
+
+    picked = (matched.length ? matched : rows).slice(0, limit);
+  } else {
+    picked = rows.slice(0, limit);
+  }
+
+  return {
+    document: {
+      id: doc.id,
+      title: doc.title,
+      author: doc.author,
+      slug: doc.slug,
+      voiceId: doc.voiceId,
+      totalSegments: doc.totalSegments,
+    },
+    query,
+    segments: picked.map((row) => ({
+      segmentIndex: row.segmentIndex,
+      pageNumber: row.pageNumber,
+      wordCount: row.wordCount,
+      content: truncateText(row.content, CONTEXT_CONTENT_MAX_LENGTH),
+    })),
   };
 }
 

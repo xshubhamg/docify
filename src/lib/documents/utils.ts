@@ -55,7 +55,7 @@ export function createSlug(value: string) {
 
 export function ensureVoiceKey(voice: string) {
   if (!(voice in voiceOptions)) {
-    throw new Error("Unsupported voice option.");
+    throw new DocumentFlowError("Unsupported voice option.", 422);
   }
 
   return voice;
