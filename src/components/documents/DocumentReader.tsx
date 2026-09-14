@@ -6,8 +6,11 @@ import { BookOpenText, Loader2, Mic, MicOff, Sparkles, Waves } from "lucide-reac
 import Vapi from "@vapi-ai/web";
 import { Document, Page, pdfjs } from "react-pdf";
 
-import { ASSISTANT_ID, voiceOptions } from "@/lib/constants";
-import type { DocumentReaderData } from "@/lib/documents/types";
+import { ASSISTANT_ID, VOICE_SETTINGS, voiceOptions } from "@/lib/constants";
+import type {
+  DocumentContextResult,
+  DocumentReaderData,
+} from "@/lib/documents/types";
 import { formatFileSize, getVoiceName } from "@/lib/documents/utils";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -317,7 +320,59 @@ function DocumentReader({
       activeVoiceSessionIdRef.current = payload.voiceSession.id;
       setTranscript([]);
       setPartialTranscript(null);
-      await vapiRef.current.start(ASSISTANT_ID);
+
+      // Ground the call with an overview of the document. Best-effort:
+      // a context failure must never block the voice call.
+      // Contract: the VAPI dashboard system prompt should reference
+      // {{documentTitle}} / {{documentContext}}.
+      let documentContext = "";
+
+      try {
+        const contextResponse = await fetch(
+          `/api/documents/${document.slug}/context?limit=5`,
+        );
+
+        if (contextResponse.ok) {
+          const contextPayload =
+            (await contextResponse.json()) as DocumentContextResult;
+          documentContext = contextPayload.segments
+            .map(
+              (segment) =>
+                `[p${segment.pageNumber ?? "?"} #${segment.segmentIndex}] ${segment.content}`,
+            )
+            .join("\n\n");
+        }
+      } catch {
+        console.warn(
+          "Document context unavailable, starting voice call without grounding.",
+        );
+      }
+
+      const elevenLabsVoiceId =
+        voiceOptions[document.voiceId as keyof typeof voiceOptions]?.id;
+
+      await vapiRef.current.start(ASSISTANT_ID, {
+        variableValues: {
+          documentTitle: document.title,
+          documentAuthor: document.author,
+          documentContext,
+        },
+        metadata: {
+          documentId: document.id,
+          slug: document.slug,
+          voiceId: document.voiceId,
+        },
+        ...(elevenLabsVoiceId
+          ? {
+              voice: {
+                provider: "11labs" as const,
+                voiceId: elevenLabsVoiceId,
+                stability: VOICE_SETTINGS.stability,
+                similarityBoost: VOICE_SETTINGS.similarityBoost,
+              },
+            }
+          : {}),
+      });
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Could not start the voice call.";
