@@ -1,0 +1,21 @@
+# Dependencies & build output
+node_modules
+.next
+out
+build
+coverage
+
+# Generated / vendored
+bun.lock
+drizzle
+public
+tsconfig.tsbuildinfo
+next-env.d.ts
+
+# Env & local state
+.env*
+!.env.example
+
+# Misc
+.DS_Store
+*.log
