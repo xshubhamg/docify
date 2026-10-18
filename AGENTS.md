@@ -66,6 +66,10 @@ metadata: { documentId, slug, voiceId }, voice: { provider: "11labs", voiceId, s
 
 ## Env (see `.env.example`)
 
+Validated at boot by `src/lib/env.ts` (server) — missing or malformed values fail
+fast with an actionable message. Google OAuth and VAPI are optional; the app runs
+without them (voice is disabled).
+
 `DATABASE_URL, BETTER_AUTH_SECRET, BETTER_AUTH_URL, BLOB_READ_WRITE_TOKEN,`
 `GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, NEXT_PUBLIC_VAPI_PUBLIC_KEY, NEXT_PUBLIC_ASSISTANT_ID`
 

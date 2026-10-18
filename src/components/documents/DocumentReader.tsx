@@ -89,6 +89,7 @@ function DocumentReader({ document }: { document: DocumentReaderData }) {
   const router = useRouter();
 
   const publicKey = process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY;
+  const assistantId = ASSISTANT_ID;
   const viewerShellRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const pageRefs = useRef<Array<HTMLDivElement | null>>([]);
@@ -97,7 +98,7 @@ function DocumentReader({ document }: { document: DocumentReaderData }) {
   const finalizingVoiceSessionRef = useRef(false);
 
   const voice = voiceOptions[document.voiceId as keyof typeof voiceOptions];
-  const canStartVoice = Boolean(publicKey && ASSISTANT_ID);
+  const canStartVoice = Boolean(publicKey && assistantId);
 
   useEffect(() => {
     let cancelled = false;
@@ -373,7 +374,7 @@ function DocumentReader({ document }: { document: DocumentReaderData }) {
     : transcript;
 
   async function handleVoiceToggle() {
-    if (!vapiRef.current || !canStartVoice || isPreparingCall) {
+    if (!vapiRef.current || !assistantId || !canStartVoice || isPreparingCall) {
       return;
     }
 
@@ -436,7 +437,7 @@ function DocumentReader({ document }: { document: DocumentReaderData }) {
       const elevenLabsVoiceId =
         voiceOptions[document.voiceId as keyof typeof voiceOptions]?.id;
 
-      await vapiRef.current.start(ASSISTANT_ID, {
+      await vapiRef.current.start(assistantId, {
         variableValues: {
           documentTitle: document.title,
           documentAuthor: document.author,
