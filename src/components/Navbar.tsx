@@ -50,13 +50,13 @@ const Navbar = () => {
   }
 
   return (
-    <header className="w-full fixed z-50 bg-(--bg-primary)">
-      <div className="wrapper navbar-height py-4 flex justify-between items-center">
+    <header className="fixed z-50 w-full bg-(--bg-primary)">
+      <div className="wrapper navbar-height flex items-center justify-between py-4">
         <Link href={logoHref} className="flex items-center gap-1">
           <span className="logo-text">Docify</span>
         </Link>
 
-        <nav className="w-fit flex gap-7.5 items-center">
+        <nav className="flex w-fit items-center gap-7.5">
           {navItems.map((item) => (
             <Link key={item.href} href={item.href} className="nav-link-base">
               <span
@@ -72,19 +72,19 @@ const Navbar = () => {
             </Link>
           ))}
 
-          <div className="flex items-center gap-2 ml-2">
+          <div className="ml-2 flex items-center gap-2">
             {isPending ? (
               <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
             ) : session ? (
               <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
-                  <button className="rounded-full cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                  <button className="cursor-pointer rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring">
                     <Avatar size="lg">
                       <AvatarImage
                         src={session.user.image ?? undefined}
                         alt={session.user.name ?? "User"}
                       />
-                      <AvatarFallback className="bg-(--color-brand) text-white text-sm font-semibold">
+                      <AvatarFallback className="bg-(--color-brand) text-sm font-semibold text-white">
                         {getInitials(session.user.name)}
                       </AvatarFallback>
                     </Avatar>
@@ -93,7 +93,7 @@ const Navbar = () => {
                 <PopoverContent
                   align="end"
                   sideOffset={8}
-                  className="w-64 rounded-xl border border-(--border-subtle) bg-(--bg-secondary) p-0 shadow-soft-lg"
+                  className="shadow-soft-lg w-64 rounded-xl border border-(--border-subtle) bg-(--bg-secondary) p-0"
                 >
                   <div className="flex items-center gap-3 px-4 pt-4 pb-3">
                     <Avatar size="lg">
@@ -101,15 +101,15 @@ const Navbar = () => {
                         src={session.user.image ?? undefined}
                         alt={session.user.name ?? "User"}
                       />
-                      <AvatarFallback className="bg-(--color-brand) text-white text-sm font-semibold">
+                      <AvatarFallback className="bg-(--color-brand) text-sm font-semibold text-white">
                         {getInitials(session.user.name)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col overflow-hidden">
-                      <span className="text-sm font-semibold text-(--text-primary) truncate">
+                      <span className="truncate text-sm font-semibold text-(--text-primary)">
                         {session.user.name}
                       </span>
-                      <span className="text-xs text-(--text-muted) truncate">
+                      <span className="truncate text-xs text-(--text-muted)">
                         {session.user.email}
                       </span>
                     </div>
@@ -129,7 +129,7 @@ const Navbar = () => {
                   <Link
                     href="/settings"
                     onClick={() => setOpen(false)}
-                    className="flex items-center gap-2.5 px-4 py-3 text-sm font-medium text-(--text-primary) hover:bg-(--bg-tertiary) transition-colors"
+                    className="flex items-center gap-2.5 px-4 py-3 text-sm font-medium text-(--text-primary) transition-colors hover:bg-(--bg-tertiary)"
                   >
                     <Settings className="size-4" />
                     Settings
@@ -139,7 +139,7 @@ const Navbar = () => {
 
                   <button
                     onClick={handleSignOut}
-                    className="flex w-full items-center gap-2.5 px-4 py-3 text-sm font-medium text-(--text-primary) hover:bg-(--bg-tertiary) transition-colors cursor-pointer rounded-b-xl"
+                    className="flex w-full cursor-pointer items-center gap-2.5 rounded-b-xl px-4 py-3 text-sm font-medium text-(--text-primary) transition-colors hover:bg-(--bg-tertiary)"
                   >
                     <LogOut className="size-4" />
                     Log out
@@ -155,7 +155,7 @@ const Navbar = () => {
                 <Button
                   size="sm"
                   asChild
-                  className="bg-(--color-brand) hover:bg-(--color-brand-hover) text-white dark:text-black"
+                  className="bg-(--color-brand) text-white hover:bg-(--color-brand-hover) dark:text-black"
                 >
                   <Link href="/signup">Sign up</Link>
                 </Button>

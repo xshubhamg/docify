@@ -81,7 +81,9 @@ export default function UploadForm() {
     try {
       const uploadResults = await Promise.allSettled([
         uploadFile(values.pdf, "pdf"),
-        values.coverImage ? uploadFile(values.coverImage, "cover") : Promise.resolve(null),
+        values.coverImage
+          ? uploadFile(values.coverImage, "cover")
+          : Promise.resolve(null),
       ]);
 
       const successfulUploads = uploadResults.flatMap((result) =>
@@ -144,9 +146,7 @@ export default function UploadForm() {
       router.push(`/documents/${result.slug}`);
       router.refresh();
     } catch (error) {
-      setErrorMessage(
-        error instanceof Error ? error.message : "Document upload failed.",
-      );
+      setErrorMessage(error instanceof Error ? error.message : "Document upload failed.");
     } finally {
       setIsSubmitting(false);
     }
@@ -206,7 +206,7 @@ export default function UploadForm() {
                             if (pdfInputRef.current) pdfInputRef.current.value = "";
                           }}
                         >
-                          <X className="w-5 h-5" />
+                          <X className="h-5 w-5" />
                         </button>
                       </div>
                     ) : (
@@ -262,13 +262,15 @@ export default function UploadForm() {
                             if (imageInputRef.current) imageInputRef.current.value = "";
                           }}
                         >
-                          <X className="w-5 h-5" />
+                          <X className="h-5 w-5" />
                         </button>
                       </div>
                     ) : (
                       <>
                         <ImageIcon className="upload-dropzone-icon" />
-                        <p className="upload-dropzone-text">Click to upload cover image</p>
+                        <p className="upload-dropzone-text">
+                          Click to upload cover image
+                        </p>
                         <p className="upload-dropzone-hint">
                           Leave empty to auto-generate from PDF
                         </p>
@@ -348,11 +350,7 @@ export default function UploadForm() {
           />
 
           {/* Submit */}
-          <button
-            type="submit"
-            className="form-btn"
-            disabled={isSubmitting}
-          >
+          <button type="submit" className="form-btn" disabled={isSubmitting}>
             Begin Synthesis
           </button>
         </form>
@@ -374,7 +372,7 @@ function VoiceGroup({
 }) {
   return (
     <div>
-      <p className="text-sm font-medium text-(--text-muted) mb-2">{label}</p>
+      <p className="mb-2 text-sm font-medium text-(--text-muted)">{label}</p>
       <div className="voice-selector-options flex-wrap">
         {keys.map((key) => {
           const voice = voiceOptions[key as keyof typeof voiceOptions];
@@ -399,7 +397,7 @@ function VoiceGroup({
               />
               <div className="text-center">
                 <p className="font-semibold text-(--text-primary)">{voice.name}</p>
-                <p className="text-xs text-(--text-muted) mt-0.5">{voice.description}</p>
+                <p className="mt-0.5 text-xs text-(--text-muted)">{voice.description}</p>
               </div>
             </label>
           );

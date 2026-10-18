@@ -18,10 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Loader2 } from "lucide-react";
 
-export function SignupForm({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
+export function SignupForm({ className, ...props }: React.ComponentProps<"div">) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState(false);
@@ -55,9 +52,7 @@ export function SignupForm({
     });
 
     if (signUpError) {
-      setError(
-        signUpError.message ?? "Something went wrong. Please try again.",
-      );
+      setError(signUpError.message ?? "Something went wrong. Please try again.");
       setLoading(false);
       return;
     }
@@ -82,20 +77,18 @@ export function SignupForm({
             <FieldGroup>
               <Link
                 href="/"
-                className="mb-2 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="mb-2 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
                 <ArrowLeft className="size-4" />
                 Back to home
               </Link>
               <div className="flex flex-col items-center gap-2 text-center">
                 <h1 className="text-2xl font-bold">Create your account</h1>
-                <p className="text-muted-foreground text-sm text-balance">
+                <p className="text-sm text-balance text-muted-foreground">
                   Enter your details below to create your account
                 </p>
               </div>
-              {error && (
-                <p className="text-sm text-destructive text-center">{error}</p>
-              )}
+              {error && <p className="text-center text-sm text-destructive">{error}</p>}
               <Field>
                 <FieldLabel htmlFor="name">Name</FieldLabel>
                 <Input
@@ -118,8 +111,8 @@ export function SignupForm({
                   disabled={loading}
                 />
                 <FieldDescription>
-                  We&apos;ll use this to contact you. We will not share your
-                  email with anyone else.
+                  We&apos;ll use this to contact you. We will not share your email with
+                  anyone else.
                 </FieldDescription>
               </Field>
               <Field>
@@ -135,9 +128,7 @@ export function SignupForm({
                     />
                   </Field>
                   <Field>
-                    <FieldLabel htmlFor="confirm-password">
-                      Confirm Password
-                    </FieldLabel>
+                    <FieldLabel htmlFor="confirm-password">Confirm Password</FieldLabel>
                     <Input
                       id="confirm-password"
                       name="confirm-password"
@@ -147,9 +138,7 @@ export function SignupForm({
                     />
                   </Field>
                 </Field>
-                <FieldDescription>
-                  Must be at least 8 characters long.
-                </FieldDescription>
+                <FieldDescription>Must be at least 8 characters long.</FieldDescription>
               </Field>
               <Field>
                 <Button type="submit" disabled={loading}>
@@ -185,7 +174,7 @@ export function SignupForm({
               </FieldDescription>
             </FieldGroup>
           </form>
-          <div className="bg-(--bg-tertiary) relative hidden md:block">
+          <div className="relative hidden bg-(--bg-tertiary) md:block">
             <Image
               src="/retro-mario.png"
               alt="Retro Mario illustration"
@@ -197,8 +186,8 @@ export function SignupForm({
         </CardContent>
       </Card>
       <FieldDescription className="px-6 text-center">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
+        By clicking continue, you agree to our <a href="#">Terms of Service</a> and{" "}
+        <a href="#">Privacy Policy</a>.
       </FieldDescription>
     </div>
   );

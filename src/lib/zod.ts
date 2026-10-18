@@ -10,7 +10,10 @@ import {
 export const UploadSchema = z.object({
   pdf: z
     .instanceof(File, { message: "Please upload a PDF file" })
-    .refine((file) => ACCEPTED_PDF_TYPES.includes(file.type), "Only PDF files are accepted")
+    .refine(
+      (file) => ACCEPTED_PDF_TYPES.includes(file.type),
+      "Only PDF files are accepted",
+    )
     .refine((file) => file.size <= MAX_FILE_SIZE, "File must be under 50MB"),
   coverImage: z
     .instanceof(File)

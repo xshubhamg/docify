@@ -44,7 +44,7 @@ voice conversation grounded in the document's content.
 - Voice start (grounded): `handleVoiceToggle` POSTs a `voice_session`, GETs
   `/context?limit=5` overview, then calls
   `vapi.start(ASSISTANT_ID, { variableValues: { documentTitle, documentAuthor, documentContext },
-  metadata: { documentId, slug, voiceId }, voice: { provider: "11labs", voiceId, stability, similarityBoost } })`.
+metadata: { documentId, slug, voiceId }, voice: { provider: "11labs", voiceId, stability, similarityBoost } })`.
   Context fetch failure must NOT block the call — warn and start bare.
 - VAPI dashboard contract: assistant system prompt must reference
   `{{documentTitle}}` / `{{documentContext}}`; turn-taking/noise settings live in the

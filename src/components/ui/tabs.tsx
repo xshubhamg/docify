@@ -3,10 +3,7 @@ import * as TabsPrimitive from "@radix-ui/react-tabs";
 
 import { cn } from "@/lib/utils";
 
-function Tabs({
-  className,
-  ...props
-}: React.ComponentProps<typeof TabsPrimitive.Root>) {
+function Tabs({ className, ...props }: React.ComponentProps<typeof TabsPrimitive.Root>) {
   return (
     <TabsPrimitive.Root
       data-slot="tabs"
@@ -40,8 +37,8 @@ function TabsTrigger({
     <TabsPrimitive.Trigger
       data-slot="tabs-trigger"
       className={cn(
-        "inline-flex flex-1 items-center justify-center rounded-lg px-3 py-2 text-sm font-medium transition-all outline-none cursor-pointer",
-        "data-[state=active]:bg-(--bg-card) data-[state=active]:text-(--text-primary) data-[state=active]:shadow-soft-sm",
+        "inline-flex flex-1 cursor-pointer items-center justify-center rounded-lg px-3 py-2 text-sm font-medium transition-all outline-none",
+        "data-[state=active]:shadow-soft-sm data-[state=active]:bg-(--bg-card) data-[state=active]:text-(--text-primary)",
         "focus-visible:ring-2 focus-visible:ring-(--color-brand)/40",
         className,
       )}

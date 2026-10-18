@@ -8,8 +8,6 @@ export class DocumentFlowError extends Error {
   }
 }
 
-export function isDocumentFlowError(
-  error: unknown,
-): error is DocumentFlowError {
+export function isDocumentFlowError(error: unknown): error is DocumentFlowError {
   return error instanceof DocumentFlowError;
 }

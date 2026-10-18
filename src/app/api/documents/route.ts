@@ -2,9 +2,7 @@ import { NextResponse } from "next/server";
 import { ZodError } from "zod/v4";
 
 import { auth } from "@/lib/auth";
-import {
-  isDocumentFlowError,
-} from "@/lib/documents/errors";
+import { isDocumentFlowError } from "@/lib/documents/errors";
 import { listDocumentsForUser } from "@/lib/documents/queries";
 import { createDocumentFromUploads } from "@/lib/documents/service";
 import { createDocumentSchema } from "@/lib/zod";
@@ -49,8 +47,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: error.message }, { status: error.statusCode });
     }
 
-    const message =
-      error instanceof Error ? error.message : "Failed to create document.";
+    const message = error instanceof Error ? error.message : "Failed to create document.";
 
     return NextResponse.json({ error: message }, { status: 500 });
   }

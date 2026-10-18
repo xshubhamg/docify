@@ -2,10 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod/v4";
 
 import { auth } from "@/lib/auth";
-import {
-  finishVoiceSession,
-  getDocumentBySlugForUser,
-} from "@/lib/documents/queries";
+import { finishVoiceSession, getDocumentBySlugForUser } from "@/lib/documents/queries";
 
 const finishVoiceSessionSchema = z.object({
   endedAt: z.string().datetime(),
@@ -13,9 +10,7 @@ const finishVoiceSessionSchema = z.object({
 
 export async function PATCH(
   request: Request,
-  {
-    params,
-  }: { params: Promise<{ slug: string; sessionId: string }> },
+  { params }: { params: Promise<{ slug: string; sessionId: string }> },
 ) {
   const session = await auth.api.getSession({
     headers: request.headers,

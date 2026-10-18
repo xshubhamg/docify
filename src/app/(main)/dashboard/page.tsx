@@ -19,9 +19,9 @@ export default async function DashboardPage() {
   const documents = await listDocumentsForUser(session.user.id);
 
   return (
-    <div className="container wrapper">
+    <div className="wrapper container">
       {/* Header Banner */}
-      <div className="relative w-full h-[240px] md:h-[300px] rounded-2xl overflow-hidden">
+      <div className="relative h-[240px] w-full overflow-hidden rounded-2xl md:h-[300px]">
         <Image
           src="/lofi-girl.jpg"
           alt="Dashboard banner"
@@ -31,10 +31,7 @@ export default async function DashboardPage() {
         />
         <div className="absolute inset-0 bg-black/40" />
         <div className="absolute inset-0 flex items-end p-6 md:p-8">
-          <Link
-            href="/documents/new"
-            className="btn-primary gap-2 font-mona-sans"
-          >
+          <Link href="/documents/new" className="btn-primary font-mona-sans gap-2">
             <FileUp className="size-5" />
             Add new doc
           </Link>

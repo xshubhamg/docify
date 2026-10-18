@@ -35,12 +35,7 @@ export async function GET(
     ? Math.min(Math.max(Math.floor(rawLimit), 1), MAX_LIMIT)
     : DEFAULT_LIMIT;
 
-  const result = await searchDocumentSegments(
-    session.user.id,
-    slug,
-    query,
-    limit,
-  );
+  const result = await searchDocumentSegments(session.user.id, slug, query, limit);
 
   if (!result) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });

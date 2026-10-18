@@ -26,10 +26,7 @@ export async function GET(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const voiceSessions = await listVoiceSessionsForDocument(
-    session.user.id,
-    doc.id,
-  );
+  const voiceSessions = await listVoiceSessionsForDocument(session.user.id, doc.id);
 
   return NextResponse.json({ voiceSessions });
 }

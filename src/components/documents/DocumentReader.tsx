@@ -16,10 +16,7 @@ import Vapi from "@vapi-ai/web";
 import { Document, Page, pdfjs } from "react-pdf";
 
 import { ASSISTANT_ID, VOICE_SETTINGS, voiceOptions } from "@/lib/constants";
-import type {
-  DocumentContextResult,
-  DocumentReaderData,
-} from "@/lib/documents/types";
+import type { DocumentContextResult, DocumentReaderData } from "@/lib/documents/types";
 import { formatFileSize, getVoiceName } from "@/lib/documents/utils";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -28,16 +25,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 
-pdfjs.GlobalWorkerOptions.workerSrc =
-  `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 type VoiceStatus =
-  | "ready"
-  | "connecting"
-  | "listening"
-  | "thinking"
-  | "speaking"
-  | "error";
+  "ready" | "connecting" | "listening" | "thinking" | "speaking" | "error";
 
 type TranscriptMessage = {
   role: "assistant" | "user";
@@ -80,11 +71,7 @@ const statusLabelMap: Record<VoiceStatus, string> = {
   error: "Needs attention",
 };
 
-function DocumentReader({
-  document,
-}: {
-  document: DocumentReaderData;
-}) {
+function DocumentReader({ document }: { document: DocumentReaderData }) {
   const [numPages, setNumPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageWidth, setPageWidth] = useState(720);
@@ -117,9 +104,7 @@ function DocumentReader({
 
     async function loadPastSessions() {
       try {
-        const response = await fetch(
-          `/api/documents/${document.slug}/voice-sessions`,
-        );
+        const response = await fetch(`/api/documents/${document.slug}/voice-sessions`);
 
         if (!response.ok) {
           return;
@@ -172,9 +157,7 @@ function DocumentReader({
       router.refresh();
     } catch (error) {
       const message =
-        error instanceof Error
-          ? error.message
-          : "Could not delete the document.";
+        error instanceof Error ? error.message : "Could not delete the document.";
       setErrorMessage(message);
       setIsDeleting(false);
     }
@@ -190,18 +173,15 @@ function DocumentReader({
     finalizingVoiceSessionRef.current = true;
 
     try {
-      await fetch(
-        `/api/documents/${document.slug}/voice-sessions/${sessionId}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            endedAt: new Date().toISOString(),
-          }),
+      await fetch(`/api/documents/${document.slug}/voice-sessions/${sessionId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({
+          endedAt: new Date().toISOString(),
+        }),
+      });
     } finally {
       activeVoiceSessionIdRef.current = null;
       finalizingVoiceSessionRef.current = false;
@@ -276,7 +256,7 @@ function DocumentReader({
           ? error
           : error instanceof Error
             ? error.message
-            : error.message ?? "Voice call failed.";
+            : (error.message ?? "Voice call failed.");
 
       setVoiceStatus("error");
       setCallActive(false);
@@ -431,8 +411,7 @@ function DocumentReader({
         );
 
         if (contextResponse.ok) {
-          const contextPayload =
-            (await contextResponse.json()) as DocumentContextResult;
+          const contextPayload = (await contextResponse.json()) as DocumentContextResult;
           documentContext = contextPayload.segments
             .map(
               (segment) =>
@@ -484,11 +463,11 @@ function DocumentReader({
 
   return (
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
-      <section className="flex min-h-[calc(100vh-140px)] flex-col overflow-hidden rounded-[24px] border border-(--border-subtle) bg-(--bg-secondary) shadow-soft-lg">
+      <section className="shadow-soft-lg flex min-h-[calc(100vh-140px)] flex-col overflow-hidden rounded-[24px] border border-(--border-subtle) bg-(--bg-secondary)">
         <div className="border-b border-(--border-subtle) px-5 py-4 md:px-6">
           <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-(--text-muted)">
+              <p className="text-xs font-semibold tracking-[0.24em] text-(--text-muted) uppercase">
                 Document Reader
               </p>
               <h1 className="font-serif text-3xl font-semibold text-(--text-primary)">
@@ -513,7 +492,7 @@ function DocumentReader({
                 onClick={handleDelete}
                 disabled={isDeleting || callActive}
                 title="Delete document"
-                className="rounded-full bg-(--bg-card) px-3 py-2 text-xs font-medium text-(--red-700) transition-colors hover:bg-(--red-50) disabled:opacity-50 cursor-pointer"
+                className="cursor-pointer rounded-full bg-(--bg-card) px-3 py-2 text-xs font-medium text-(--red-700) transition-colors hover:bg-(--red-50) disabled:opacity-50"
               >
                 {isDeleting ? (
                   <Loader2 className="size-3.5 animate-spin" />
@@ -550,10 +529,10 @@ function DocumentReader({
                       pageRefs.current[pageNumber - 1] = node;
                     }}
                     data-page-number={pageNumber}
-                    className="rounded-[20px] border border-(--border-subtle) bg-white p-3 shadow-soft-sm"
+                    className="shadow-soft-sm rounded-[20px] border border-(--border-subtle) bg-white p-3"
                   >
                     <div className="mb-3 flex items-center justify-between px-2">
-                      <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                      <span className="text-xs font-semibold tracking-[0.18em] text-slate-400 uppercase">
                         Page {pageNumber}
                       </span>
                     </div>
@@ -571,7 +550,7 @@ function DocumentReader({
         </div>
       </section>
 
-      <aside className="rounded-[24px] border border-(--border-subtle) bg-(--bg-secondary) p-4 shadow-soft-lg md:p-5">
+      <aside className="shadow-soft-lg rounded-[24px] border border-(--border-subtle) bg-(--bg-secondary) p-4 md:p-5">
         <Tabs defaultValue="navigate" className="h-full">
           <TabsList className="w-full">
             <TabsTrigger value="navigate">Navigate</TabsTrigger>
@@ -588,8 +567,8 @@ function DocumentReader({
                     Page Navigator
                   </p>
                   <p className="text-sm text-(--text-secondary)">
-                    Jump anywhere in the PDF. The active page stays highlighted as
-                    you scroll.
+                    Jump anywhere in the PDF. The active page stays highlighted as you
+                    scroll.
                   </p>
                 </div>
               </div>
@@ -602,13 +581,13 @@ function DocumentReader({
                   type="button"
                   onClick={() => jumpToPage(pageNumber)}
                   className={cn(
-                    "rounded-[18px] border p-4 text-left transition-all cursor-pointer",
+                    "cursor-pointer rounded-[18px] border p-4 text-left transition-all",
                     currentPage === pageNumber
-                      ? "border-(--color-brand) bg-(--color-brand)/10 shadow-soft-sm"
+                      ? "shadow-soft-sm border-(--color-brand) bg-(--color-brand)/10"
                       : "border-(--border-subtle) bg-(--bg-card) hover:bg-(--bg-tertiary)",
                   )}
                 >
-                  <span className="block text-xs font-semibold uppercase tracking-[0.16em] text-(--text-muted)">
+                  <span className="block text-xs font-semibold tracking-[0.16em] text-(--text-muted) uppercase">
                     Page
                   </span>
                   <span className="mt-2 block font-serif text-2xl font-semibold text-(--text-primary)">
@@ -641,10 +620,10 @@ function DocumentReader({
                   key={segment.id}
                   type="button"
                   onClick={() => segment.pageNumber && jumpToPage(segment.pageNumber)}
-                  className="w-full rounded-[18px] border border-(--border-subtle) bg-(--bg-card) p-4 text-left transition-colors hover:bg-(--bg-tertiary) cursor-pointer"
+                  className="w-full cursor-pointer rounded-[18px] border border-(--border-subtle) bg-(--bg-card) p-4 text-left transition-colors hover:bg-(--bg-tertiary)"
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs font-semibold uppercase tracking-[0.14em] text-(--text-muted)">
+                    <span className="text-xs font-semibold tracking-[0.14em] text-(--text-muted) uppercase">
                       Segment {segment.segmentIndex + 1}
                     </span>
                     <span className="rounded-full bg-(--bg-secondary) px-2.5 py-1 text-xs text-(--text-secondary)">
@@ -711,14 +690,14 @@ function DocumentReader({
                 </div>
 
                 <p className="text-sm leading-6 text-(--text-secondary)">
-                  Talk to this document with the selected assistant voice. Voice
-                  sessions are recorded in your database as they start and finish.
+                  Talk to this document with the selected assistant voice. Voice sessions
+                  are recorded in your database as they start and finish.
                 </p>
 
                 {!canStartVoice && (
                   <p className="text-sm text-(--text-muted)">
-                    Add `NEXT_PUBLIC_VAPI_PUBLIC_KEY` and `NEXT_PUBLIC_ASSISTANT_ID`
-                    to enable live voice calls.
+                    Add `NEXT_PUBLIC_VAPI_PUBLIC_KEY` and `NEXT_PUBLIC_ASSISTANT_ID` to
+                    enable live voice calls.
                   </p>
                 )}
 
@@ -769,7 +748,7 @@ function DocumentReader({
                 <h2 className="font-serif text-lg font-semibold text-(--text-primary)">
                   Past Conversations
                 </h2>
-                <span className="text-xs uppercase tracking-[0.18em] text-(--text-muted)">
+                <span className="text-xs tracking-[0.18em] text-(--text-muted) uppercase">
                   {pastSessions.length}
                 </span>
               </div>
@@ -782,15 +761,12 @@ function DocumentReader({
                       className="flex items-center justify-between gap-2 rounded-[14px] bg-(--bg-secondary) px-3.5 py-2.5 text-sm"
                     >
                       <span className="text-(--text-secondary)">
-                        {new Date(pastSession.startedAt).toLocaleDateString(
-                          undefined,
-                          {
-                            month: "short",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          },
-                        )}
+                        {new Date(pastSession.startedAt).toLocaleDateString(undefined, {
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
                       </span>
                       <span className="font-medium text-(--text-primary)">
                         {formatSessionDuration(pastSession.durationSeconds)}
@@ -810,7 +786,7 @@ function DocumentReader({
                 <h2 className="font-serif text-lg font-semibold text-(--text-primary)">
                   Live Transcript
                 </h2>
-                <span className="text-xs uppercase tracking-[0.18em] text-(--text-muted)">
+                <span className="text-xs tracking-[0.18em] text-(--text-muted) uppercase">
                   {allTranscript.length} lines
                 </span>
               </div>
@@ -826,7 +802,7 @@ function DocumentReader({
                         : "bg-(--color-brand)/10",
                     )}
                   >
-                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-(--text-muted)">
+                    <p className="text-xs font-semibold tracking-[0.16em] text-(--text-muted) uppercase">
                       {message.role === "assistant" ? "Assistant" : "You"}
                     </p>
                     <p className="mt-2 text-sm leading-6 text-(--text-primary)">
@@ -837,8 +813,7 @@ function DocumentReader({
 
                 {!allTranscript.length && (
                   <div className="rounded-[18px] border border-dashed border-(--border-subtle) px-4 py-6 text-sm leading-6 text-(--text-secondary)">
-                    Start a conversation and the transcript will appear here in real
-                    time.
+                    Start a conversation and the transcript will appear here in real time.
                   </div>
                 )}
               </div>

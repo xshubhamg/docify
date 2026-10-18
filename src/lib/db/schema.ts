@@ -200,19 +200,16 @@ export const documentRelations = relations(document, ({ one, many }) => ({
   voiceSessions: many(voiceSession),
 }));
 
-export const documentSegmentRelations = relations(
-  documentSegment,
-  ({ one }) => ({
-    user: one(user, {
-      fields: [documentSegment.userId],
-      references: [user.id],
-    }),
-    document: one(document, {
-      fields: [documentSegment.documentId],
-      references: [document.id],
-    }),
+export const documentSegmentRelations = relations(documentSegment, ({ one }) => ({
+  user: one(user, {
+    fields: [documentSegment.userId],
+    references: [user.id],
   }),
-);
+  document: one(document, {
+    fields: [documentSegment.documentId],
+    references: [document.id],
+  }),
+}));
 
 export const voiceSessionRelations = relations(voiceSession, ({ one }) => ({
   user: one(user, {

@@ -50,8 +50,7 @@ export async function POST(request: Request) {
           addRandomSuffix: false,
           validUntil: Date.now() + 5 * 60 * 1000,
           maximumSizeInBytes: kind === "pdf" ? MAX_FILE_SIZE : MAX_IMAGE_SIZE,
-          allowedContentTypes:
-            kind === "pdf" ? ACCEPTED_PDF_TYPES : ACCEPTED_IMAGE_TYPES,
+          allowedContentTypes: kind === "pdf" ? ACCEPTED_PDF_TYPES : ACCEPTED_IMAGE_TYPES,
         };
       },
     });

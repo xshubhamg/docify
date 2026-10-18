@@ -118,12 +118,7 @@ export async function listVoiceSessionsForDocument(
       durationSeconds: voiceSession.durationSeconds,
     })
     .from(voiceSession)
-    .where(
-      and(
-        eq(voiceSession.userId, userId),
-        eq(voiceSession.documentId, documentId),
-      ),
-    )
+    .where(and(eq(voiceSession.userId, userId), eq(voiceSession.documentId, documentId)))
     .orderBy(desc(voiceSession.startedAt))
     .limit(limit);
 }
@@ -216,8 +211,7 @@ export async function searchDocumentSegments(
       .filter((entry) => entry.score > 0)
       .sort(
         (first, second) =>
-          second.score - first.score ||
-          first.row.segmentIndex - second.row.segmentIndex,
+          second.score - first.score || first.row.segmentIndex - second.row.segmentIndex,
       )
       .map((entry) => entry.row);
 
@@ -288,9 +282,7 @@ export async function finishVoiceSession(
 
   const durationSeconds = Math.max(
     0,
-    Math.round(
-      (endedAt.getTime() - existingSession.startedAt.getTime()) / 1000,
-    ),
+    Math.round((endedAt.getTime() - existingSession.startedAt.getTime()) / 1000),
   );
 
   const [row] = await db

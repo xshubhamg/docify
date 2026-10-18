@@ -2,7 +2,7 @@
   <h1>Docify</h1>
   <p>An AI-powered document intelligence platform that brings your PDFs to life through voice.</p>
 
-  ![Docify Preview](/placeholder-image.png)
+![Docify Preview](/placeholder-image.png)
 </div>
 
 ---
@@ -26,25 +26,25 @@ Whether you're a student digesting dense academic papers, a professional reviewi
 
 Docify is built for speed, type safety, and scalability.
 
-| Category | Technology | Purpose |
-|---|---|---|
-| **Core** | [Bun](https://bun.sh/) & [Next.js 16 (App Router)](https://nextjs.org/) | Blazing fast execution, React Server Components, and optimized routing |
-| **Language** | [TypeScript](https://www.typescriptlang.org/) | End-to-end type safety |
-| **Styling** | [Tailwind CSS v4](https://tailwindcss.com/) & [shadcn/ui](https://ui.shadcn.com/) | Utility-first styling with unstyled, accessible component primitives |
-| **Database** | [PostgreSQL](https://www.postgresql.org/) & [Drizzle ORM](https://orm.drizzle.team/) | Relational data integrity with a lightweight, type-safe ORM |
-| **Auth** | [Better-Auth](https://better-auth.com/) | Self-hosted authentication with Drizzle integration |
-| **Voice / AI** | [VAPI](https://vapi.ai/) & [ElevenLabs](https://elevenlabs.io/) | Turn-taking, endpointing, and hyper-realistic TTS |
-| **Processing** | `pdfjs-dist` & `react-pdf` | Robust client and server-side PDF parsing and rendering |
+| Category       | Technology                                                                           | Purpose                                                                |
+| -------------- | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
+| **Core**       | [Bun](https://bun.sh/) & [Next.js 16 (App Router)](https://nextjs.org/)              | Blazing fast execution, React Server Components, and optimized routing |
+| **Language**   | [TypeScript](https://www.typescriptlang.org/)                                        | End-to-end type safety                                                 |
+| **Styling**    | [Tailwind CSS v4](https://tailwindcss.com/) & [shadcn/ui](https://ui.shadcn.com/)    | Utility-first styling with unstyled, accessible component primitives   |
+| **Database**   | [PostgreSQL](https://www.postgresql.org/) & [Drizzle ORM](https://orm.drizzle.team/) | Relational data integrity with a lightweight, type-safe ORM            |
+| **Auth**       | [Better-Auth](https://better-auth.com/)                                              | Self-hosted authentication with Drizzle integration                    |
+| **Voice / AI** | [VAPI](https://vapi.ai/) & [ElevenLabs](https://elevenlabs.io/)                      | Turn-taking, endpointing, and hyper-realistic TTS                      |
+| **Processing** | `pdfjs-dist` & `react-pdf`                                                           | Robust client and server-side PDF parsing and rendering                |
 
 ### Architecture Highlights
 
 - **Route Groups:** Clean separation of concerns using Next.js route groups (`(landing)`, `(auth)`, `(main)`) for distinct layout management.
 - **Blob Storage Integration:** Efficient handling of file uploads and cleanup, utilizing secure endpoints.
-- **Database Schema:** 
+- **Database Schema:**
   - `user` / `session` / `account` for authentication.
   - `document` tracking metadata, blob keys, and voices.
   - `document_segment` storing chunked PDF data for accurate RAG (Retrieval-Augmented Generation).
-- **Design System:** Integrates the [Catppuccin](https://catppuccin.com/) aesthetic (Latte for Light mode, Mocha for Dark mode) tightly into Tailwind variables within `globals.css`. 
+- **Design System:** Integrates the [Catppuccin](https://catppuccin.com/) aesthetic (Latte for Light mode, Mocha for Dark mode) tightly into Tailwind variables within `globals.css`.
 
 ## 🚀 Getting Started
 

@@ -18,10 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Loader2 } from "lucide-react";
 
-export function LoginForm({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
+export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState(false);
@@ -67,22 +64,18 @@ export function LoginForm({
             <FieldGroup>
               <Link
                 href="/"
-                className="mb-2 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="mb-2 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
                 <ArrowLeft className="size-4" />
                 Back to home
               </Link>
               <div className="flex flex-col items-center gap-2 text-center">
-                <h1 className="text-2xl text-primary font-bold">
-                  Welcome back
-                </h1>
-                <p className="text-muted-foreground text-balance">
+                <h1 className="text-2xl font-bold text-primary">Welcome back</h1>
+                <p className="text-balance text-muted-foreground">
                   Login to your Docify account
                 </p>
               </div>
-              {error && (
-                <p className="text-sm text-destructive text-center">{error}</p>
-              )}
+              {error && <p className="text-center text-sm text-destructive">{error}</p>}
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
                 <Input
@@ -146,7 +139,7 @@ export function LoginForm({
               </FieldDescription>
             </FieldGroup>
           </form>
-          <div className="bg-(--bg-tertiary) relative hidden md:block">
+          <div className="relative hidden bg-(--bg-tertiary) md:block">
             <Image
               src="/retro-mario.png"
               alt="Retro Mario illustration"
@@ -158,8 +151,8 @@ export function LoginForm({
         </CardContent>
       </Card>
       <FieldDescription className="px-6 text-center">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
+        By clicking continue, you agree to our <a href="#">Terms of Service</a> and{" "}
+        <a href="#">Privacy Policy</a>.
       </FieldDescription>
     </div>
   );

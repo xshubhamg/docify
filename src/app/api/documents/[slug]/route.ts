@@ -1,10 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { auth } from "@/lib/auth";
-import {
-  deleteDocumentForUser,
-  getDocumentReaderData,
-} from "@/lib/documents/queries";
+import { deleteDocumentForUser, getDocumentReaderData } from "@/lib/documents/queries";
 import { deleteBlob } from "@/lib/documents/storage";
 
 export async function GET(

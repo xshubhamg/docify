@@ -30,9 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${ibmPlexSans.variable} ${monaSans.variable} antialiased`}
-      >
+      <body className={`${ibmPlexSans.variable} ${monaSans.variable} antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

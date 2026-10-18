@@ -119,11 +119,7 @@ export function buildSegmentsFromPages(
   const allSegments: SegmentInsert[] = [];
 
   pages.forEach(({ pageNumber, text }) => {
-    const words = text
-      .replace(/\s+/g, " ")
-      .trim()
-      .split(" ")
-      .filter(Boolean);
+    const words = text.replace(/\s+/g, " ").trim().split(" ").filter(Boolean);
 
     if (!words.length) {
       return;

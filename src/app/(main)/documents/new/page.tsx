@@ -7,8 +7,7 @@ const NewBookPage = () => {
         <section className="flex flex-col gap-5">
           <h1 className="page-title-xl">Add new Book</h1>
           <p className="subtitle">
-            Upload your documents to generate insightful facts and learn from
-            them.
+            Upload your documents to generate insightful facts and learn from them.
           </p>
         </section>
 

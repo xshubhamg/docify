@@ -7,7 +7,7 @@ import type { DocumentReaderData } from "@/lib/documents/types";
 const DocumentReader = dynamic(() => import("@/components/documents/DocumentReader"), {
   ssr: false,
   loading: () => (
-    <div className="min-h-[calc(100vh-140px)] rounded-[24px] border border-(--border-subtle) bg-(--bg-secondary) shadow-soft-lg" />
+    <div className="shadow-soft-lg min-h-[calc(100vh-140px)] rounded-[24px] border border-(--border-subtle) bg-(--bg-secondary)" />
   ),
 });
 
