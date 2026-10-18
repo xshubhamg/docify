@@ -293,6 +293,10 @@ function DocumentReader({ document }: { document: DocumentReaderData }) {
     }
 
     const observer = new ResizeObserver(([entry]) => {
+      if (!entry) {
+        return;
+      }
+
       setPageWidth(Math.max(280, Math.floor(entry.contentRect.width) - 48));
     });
 
@@ -318,9 +322,13 @@ function DocumentReader({ document }: { document: DocumentReaderData }) {
           return;
         }
 
-        const pageNumber = Number(
-          visibleEntries[0].target.getAttribute("data-page-number"),
-        );
+        const mostVisible = visibleEntries[0];
+
+        if (!mostVisible) {
+          return;
+        }
+
+        const pageNumber = Number(mostVisible.target.getAttribute("data-page-number"));
 
         if (Number.isFinite(pageNumber)) {
           setCurrentPage(pageNumber);
