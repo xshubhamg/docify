@@ -170,7 +170,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
                 </Button>
               </Field>
               <FieldDescription className="text-center">
-                Already have an account? <a href="/login">Sign in</a>
+                Already have an account? <Link href="/login">Sign in</Link>
               </FieldDescription>
             </FieldGroup>
           </form>
@@ -186,8 +186,8 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
         </CardContent>
       </Card>
       <FieldDescription className="px-6 text-center">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a> and{" "}
-        <a href="#">Privacy Policy</a>.
+        By clicking continue, you agree to our <Link href="/terms">Terms of Service</Link>{" "}
+        and <Link href="/privacy">Privacy Policy</Link>.
       </FieldDescription>
     </div>
   );
