@@ -13,25 +13,25 @@ import {
 const features = [
   {
     icon: FileUp,
-    title: "Upload Any Document",
+    title: "Upload any PDF",
     description:
-      "PDF, Word, text files — drop them in and Docify handles the rest. Your documents are securely stored and instantly ready for analysis.",
+      "Drop in a PDF up to 50 MB. Files are stored privately and streamed back through an authenticated proxy — never exposed as a raw public URL.",
     color: "text-[#209fb5] dark:text-[#74c7ec]",
     bgColor: "bg-[#209fb5]/10 dark:bg-[#74c7ec]/10",
   },
   {
     icon: Sparkles,
-    title: "AI-Powered Insights",
+    title: "Grounded in your text",
     description:
-      "Our AI reads, understands, and extracts the key information from your documents — summaries, themes, entities, and more.",
+      "Every page is extracted and segmented server-side, then the assistant is grounded in the document's actual content — not a generic model memory.",
     color: "text-[#fe640b] dark:text-[#fab387]",
     bgColor: "bg-[#fe640b]/10 dark:bg-[#fab387]/10",
   },
   {
     icon: MessageCircleQuestion,
-    title: "Ask Questions",
+    title: "Talk, don't type",
     description:
-      "Have a conversation with your documents. Ask anything and get precise, context-aware answers backed by your actual content.",
+      "Pick an ElevenLabs voice and hold a live conversation. The transcript appears in real time beside the source, so you can see where answers come from.",
     color: "text-[#179299] dark:text-[#94e2d5]",
     bgColor: "bg-[#179299]/10 dark:bg-[#94e2d5]/10",
   },
@@ -41,22 +41,23 @@ const steps = [
   {
     number: "01",
     icon: Upload,
-    title: "Upload your document",
-    description: "Drag and drop or browse to upload any supported document format.",
+    title: "Upload a PDF",
+    description:
+      "Drag and drop or browse. Add a title, author, and the voice you want to talk to.",
   },
   {
     number: "02",
     icon: BrainCircuit,
-    title: "AI analyzes it",
+    title: "We extract and segment",
     description:
-      "Our AI processes your document, building a deep understanding of its content.",
+      "The server reads each page, chunks the text with overlap, and stores it for grounding.",
   },
   {
     number: "03",
     icon: MessagesSquare,
-    title: "Ask & get answers",
+    title: "Start the conversation",
     description:
-      "Start a conversation. Ask questions and receive accurate, cited answers.",
+      "Ask out loud. Answers are grounded in your document, and the transcript updates live.",
   },
 ];
 
@@ -75,19 +76,20 @@ export default function LandingPage() {
           <div className="inline-flex items-center gap-2 rounded-full border border-(--color-brand)/20 bg-(--color-brand)/5 px-4 py-2 backdrop-blur-sm">
             <span className="h-2 w-2 animate-pulse rounded-full bg-(--success)" />
             <span className="text-sm font-medium text-(--color-brand)">
-              AI-powered document intelligence
+              Voice-first document intelligence
             </span>
           </div>
 
           <h1 className="font-serif text-5xl leading-[1.1] font-bold tracking-[-0.03em] text-(--text-primary) md:text-7xl">
-            Your documents,
+            Your PDFs,
             <br />
-            <span className="text-(--color-brand)">supercharged</span> with AI
+            <span className="text-(--color-brand)">ready to talk</span>
           </h1>
 
           <p className="max-w-2xl text-lg leading-relaxed text-(--text-secondary) md:text-xl">
-            Upload any document and unlock instant insights. Ask questions, get summaries,
-            and discover what&apos;s hidden in your files — all powered by AI.
+            Upload a PDF, choose a voice, and ask questions out loud. Docify grounds every
+            answer in the document&apos;s text and shows the transcript right next to the
+            source.
           </p>
 
           <div className="mt-2 flex flex-col items-center gap-4 sm:flex-row">
@@ -126,7 +128,7 @@ export default function LandingPage() {
             <h2 className="font-serif text-3xl font-bold tracking-[-0.02em] text-(--text-primary) md:text-5xl">
               Everything you need to
               <br className="hidden md:block" />
-              <span className="text-(--color-brand)"> understand your documents</span>
+              <span className="text-(--color-brand)"> talk to your documents</span>
             </h2>
           </div>
 
