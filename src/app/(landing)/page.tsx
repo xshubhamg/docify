@@ -63,7 +63,7 @@ const steps = [
 
 export default function LandingPage() {
   return (
-    <main>
+    <main id="main-content">
       {/* ========== HERO ========== */}
       <section className="relative flex min-h-screen items-center justify-center overflow-hidden bg-(--bg-primary)">
         <div
@@ -98,7 +98,10 @@ export default function LandingPage() {
               className="group inline-flex items-center gap-2.5 rounded-xl bg-(--color-brand) px-8 py-4 text-lg font-bold text-white transition-all duration-200 hover:bg-(--color-brand-hover) hover:shadow-[0_0_30px_rgba(203,166,247,0.3)] dark:text-[#1e1e2e]"
             >
               Get started free
-              <ArrowRight className="size-5 transition-transform group-hover:translate-x-0.5" />
+              <ArrowRight
+                className="size-5 transition-transform group-hover:translate-x-0.5"
+                aria-hidden="true"
+              />
             </Link>
             <a
               href="#features"
@@ -114,12 +117,15 @@ export default function LandingPage() {
           className="absolute bottom-8 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-2 text-(--text-muted) transition-colors hover:text-(--color-brand)"
         >
           <span className="text-xs font-medium tracking-widest uppercase">Explore</span>
-          <ChevronDown className="size-5 animate-bounce" />
+          <ChevronDown className="size-5 animate-bounce" aria-hidden="true" />
         </a>
       </section>
 
       {/* ========== FEATURES ========== */}
-      <section id="features" className="relative bg-(--bg-primary) py-28 md:py-36">
+      <section
+        id="features"
+        className="relative scroll-mt-24 bg-(--bg-primary) py-28 md:py-36"
+      >
         <div className="mx-auto max-w-7xl px-5">
           <div className="mb-16 text-center md:mb-20">
             <span className="mb-4 inline-block text-sm font-semibold tracking-widest text-(--color-brand) uppercase">
@@ -141,7 +147,10 @@ export default function LandingPage() {
                 <div
                   className={`inline-flex h-14 w-14 items-center justify-center rounded-xl ${feature.bgColor} mb-6`}
                 >
-                  <feature.icon className={`size-7 ${feature.color}`} />
+                  <feature.icon
+                    className={`size-7 ${feature.color}`}
+                    aria-hidden="true"
+                  />
                 </div>
                 <h3 className="mb-3 font-serif text-xl font-bold text-(--text-primary)">
                   {feature.title}
@@ -177,7 +186,10 @@ export default function LandingPage() {
 
                 <div className="relative mb-8">
                   <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-(--color-brand)/10">
-                    <step.icon className="size-9 text-(--color-brand)" />
+                    <step.icon
+                      className="size-9 text-(--color-brand)"
+                      aria-hidden="true"
+                    />
                   </div>
                   <span className="absolute -top-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full bg-(--color-brand) text-sm font-bold text-white dark:text-[#1e1e2e]">
                     {step.number}
@@ -219,7 +231,10 @@ export default function LandingPage() {
             className="group inline-flex items-center gap-2.5 rounded-xl bg-(--color-brand) px-10 py-4 text-lg font-bold text-white transition-all duration-200 hover:bg-(--color-brand-hover) hover:shadow-[0_0_30px_rgba(203,166,247,0.3)] dark:text-[#1e1e2e]"
           >
             Get started for free
-            <ArrowRight className="size-5 transition-transform group-hover:translate-x-0.5" />
+            <ArrowRight
+              className="size-5 transition-transform group-hover:translate-x-0.5"
+              aria-hidden="true"
+            />
           </Link>
         </div>
       </section>

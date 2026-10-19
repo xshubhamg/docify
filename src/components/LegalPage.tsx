@@ -12,13 +12,16 @@ export function LegalPage({
   children: ReactNode;
 }) {
   return (
-    <main className="min-h-screen bg-(--bg-primary) pt-[calc(var(--navbar-height)+48px)] pb-24">
+    <main
+      id="main-content"
+      className="min-h-screen bg-(--bg-primary) pt-[calc(var(--navbar-height)+48px)] pb-24"
+    >
       <div className="mx-auto w-full max-w-3xl px-5">
         <Link
           href="/"
           className="mb-8 inline-flex items-center gap-1.5 text-sm text-(--text-muted) transition-colors hover:text-(--color-brand)"
         >
-          <ArrowLeft className="size-4" />
+          <ArrowLeft className="size-4" aria-hidden="true" />
           Back to home
         </Link>
 

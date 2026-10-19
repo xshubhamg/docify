@@ -83,7 +83,7 @@ export function LoginForm({
                 href="/"
                 className="mb-2 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
-                <ArrowLeft className="size-4" />
+                <ArrowLeft className="size-4" aria-hidden="true" />
                 Back to home
               </Link>
               <div className="flex flex-col items-center gap-2 text-center">

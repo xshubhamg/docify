@@ -3,7 +3,10 @@ import { ArrowLeft, FileQuestion } from "lucide-react";
 
 export default function NotFound() {
   return (
-    <main className="flex min-h-svh items-center justify-center bg-(--bg-primary) px-5 py-16">
+    <main
+      id="main-content"
+      className="flex min-h-svh items-center justify-center bg-(--bg-primary) px-5 py-16"
+    >
       <div className="w-full max-w-lg text-center">
         <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-(--color-brand)/10">
           <FileQuestion className="size-7 text-(--color-brand)" />

@@ -19,7 +19,7 @@ export default async function DashboardPage() {
   const documents = await listDocumentsForUser(session.user.id);
 
   return (
-    <div className="wrapper container">
+    <main id="main-content" className="wrapper container">
       {/* Header Banner */}
       <div className="relative h-[240px] w-full overflow-hidden rounded-2xl md:h-[300px]">
         <Image
@@ -40,6 +40,6 @@ export default async function DashboardPage() {
 
       {/* Documents Section */}
       <DocumentsGrid documents={documents} />
-    </div>
+    </main>
   );
 }

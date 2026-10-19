@@ -19,7 +19,10 @@ export default function AppError({
   }, [error]);
 
   return (
-    <main className="flex min-h-svh items-center justify-center bg-(--bg-primary) px-5 py-16">
+    <main
+      id="main-content"
+      className="flex min-h-svh items-center justify-center bg-(--bg-primary) px-5 py-16"
+    >
       <div className="w-full max-w-lg rounded-3xl border border-(--border-subtle) bg-(--bg-card) p-8 shadow-(--shadow-soft-lg) md:p-10">
         <div className="flex size-12 items-center justify-center rounded-2xl bg-(--color-brand)/10">
           <AlertTriangle className="size-6 text-(--color-brand)" />

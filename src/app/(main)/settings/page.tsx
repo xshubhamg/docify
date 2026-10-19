@@ -27,7 +27,7 @@ export default async function SettingsPage() {
   }
 
   return (
-    <div className="wrapper container">
+    <main id="main-content" className="wrapper container">
       <h1 className="page-title-xl mb-2">Settings</h1>
       <p className="subtitle mb-10 text-center">Manage your account and appearance.</p>
 
@@ -73,6 +73,6 @@ export default async function SettingsPage() {
           <SignOutButton />
         </section>
       </div>
-    </div>
+    </main>
   );
 }

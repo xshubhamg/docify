@@ -781,4 +781,26 @@
       transform: translateY(-2px);
     }
   }
+
+  /* Keyboard-only escape hatch past the fixed navbar. */
+  .skip-link {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 100;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    background-color: var(--color-brand);
+    color: #fff;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transform: translateY(-200%);
+    transition: transform 150ms ease;
+  }
+
+  .skip-link:focus-visible {
+    transform: translateY(0);
+    outline: 2px solid var(--text-primary);
+    outline-offset: 2px;
+  }
 }

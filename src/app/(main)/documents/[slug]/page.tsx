@@ -26,7 +26,7 @@ export default async function DocumentPage({
   }
 
   return (
-    <main className="wrapper pt-[calc(var(--navbar-height)+24px)] pb-8">
+    <main id="main-content" className="wrapper pt-[calc(var(--navbar-height)+24px)] pb-8">
       <DocumentReaderClient document={document} />
     </main>
   );

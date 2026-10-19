@@ -33,7 +33,10 @@ const coming = [
 
 export default function PricingPage() {
   return (
-    <main className="min-h-screen bg-(--bg-primary) pt-[calc(var(--navbar-height)+64px)] pb-24">
+    <main
+      id="main-content"
+      className="min-h-screen bg-(--bg-primary) pt-[calc(var(--navbar-height)+64px)] pb-24"
+    >
       <div className="mx-auto w-full max-w-6xl px-5">
         <div className="mx-auto max-w-3xl text-center">
           <span className="inline-block rounded-full border border-(--color-brand)/20 bg-(--color-brand)/5 px-4 py-2 text-sm font-medium text-(--color-brand)">
@@ -50,7 +53,7 @@ export default function PricingPage() {
         <div className="mx-auto mt-14 grid max-w-5xl gap-6 lg:grid-cols-[1.1fr_0.9fr]">
           <section className="relative overflow-hidden rounded-3xl border border-(--color-brand)/30 bg-(--bg-card) p-8 shadow-(--shadow-soft-lg) md:p-10">
             <div className="flex items-center gap-2 text-sm font-semibold tracking-widest text-(--color-brand) uppercase">
-              <Sparkles className="size-4" />
+              <Sparkles className="size-4" aria-hidden="true" />
               Beta
             </div>
             <div className="mt-5 flex items-end gap-2">
@@ -70,7 +73,10 @@ export default function PricingPage() {
                   key={item}
                   className="flex items-start gap-3 text-sm text-(--text-primary)"
                 >
-                  <Check className="mt-0.5 size-4 shrink-0 text-(--success)" />
+                  <Check
+                    className="mt-0.5 size-4 shrink-0 text-(--success)"
+                    aria-hidden="true"
+                  />
                   {item}
                 </li>
               ))}
@@ -87,7 +93,7 @@ export default function PricingPage() {
           <div className="space-y-6">
             <section className="rounded-3xl border border-(--border-subtle) bg-(--bg-secondary) p-8">
               <div className="flex items-center gap-2 text-sm font-semibold text-(--text-primary)">
-                <ShieldCheck className="size-4 text-(--color-brand)" />
+                <ShieldCheck className="size-4 text-(--color-brand)" aria-hidden="true" />
                 Built for privacy
               </div>
               <p className="mt-3 text-sm leading-6 text-(--text-secondary)">
@@ -98,7 +104,7 @@ export default function PricingPage() {
 
             <section className="rounded-3xl border border-(--border-subtle) bg-(--bg-secondary) p-8">
               <div className="flex items-center gap-2 text-sm font-semibold text-(--text-primary)">
-                <Mic className="size-4 text-(--color-brand)" />
+                <Mic className="size-4 text-(--color-brand)" aria-hidden="true" />
                 Voice minutes
               </div>
               <p className="mt-3 text-sm leading-6 text-(--text-secondary)">
