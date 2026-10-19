@@ -18,20 +18,29 @@ All notable changes to this project are documented here. The format follows
 - Zod-validated server environment with fail-fast boot.
 - Real `/pricing`, `/terms`, and `/privacy` pages.
 - Responsive mobile navigation and a working settings page.
+- Open Graph image and social metadata generated at build time.
+- `/api/health` database readiness probe.
+- Skip link and per-page `main` landmarks for keyboard and screen-reader users.
+- Engineering case study under `docs/`.
 
 ### Changed
 
 - Formatted the codebase with the shared Prettier configuration.
 - Replaced in-memory keyword scoring with Postgres full-text search and a GIN index.
 - Reader payloads now send a bounded preview per segment instead of full text.
+- The reader mounts only a window of PDF pages, keeping long documents responsive.
 - Upload dropzones are keyboard and drag accessible; deletion uses a modal dialog.
 - Removed dead Clerk CSS and repaired undefined color tokens.
+- Drizzle commands now load `.env.local` the same way Next.js does.
 
 ### Fixed
 
 - Race condition in document slug allocation under concurrent uploads.
 - `.env.example` was gitignored despite setup docs referencing it.
 - Dead `#` links in the auth forms and a missing `/pricing` route.
+- Malformed upload payloads returned 500 instead of 400.
+- Google sign-in was offered even when OAuth was not configured.
+- The dashboard showed "No documents match" for an account with no documents.
 
 ## [0.1.0] - 2026-09-14
 

@@ -46,16 +46,20 @@ Shipped and committed:
   pages, Zod-validated env with fail-fast boot, centralized API auth/error mapping,
   race-safe slug allocation, self-hosted pdfjs worker, CSP and security headers,
   sliding-window rate limiting (Upstash or in-memory fallback).
-- **Phase 3** — Vitest suite (43 tests) with 90% coverage thresholds and a CI
-  workflow that runs lint, typecheck, coverage, and a production build.
-- **Phase 4 (partial)** — bounded segment previews in the reader payload and
-  Postgres full-text search with a GIN index, replacing in-memory scoring.
+- **Phase 3** — Vitest suite with 90% coverage thresholds and a CI workflow that
+  runs lint, a Prettier check, typecheck, coverage, and a production build.
+- **Phase 4 (partial)** — bounded segment previews in the reader payload, a windowed
+  PDF page renderer, and Postgres full-text search with a GIN index replacing
+  in-memory scoring.
 - **Phase 5 (partial)** — keyboard/drag-accessible upload dropzones, responsive
-  mobile navigation, a real settings page, an accessible delete dialog, and removal
-  of ~200 lines of dead Clerk CSS.
+  mobile navigation, a real settings page, an accessible delete dialog, a skip link
+  with per-page main landmarks, and removal of ~200 lines of dead Clerk CSS.
+- **Phase 6/7 (partial)** — a database health endpoint, Open Graph image and social
+  metadata, Dependabot, an accurate empty state, and an engineering case study.
 
-Next up: integration tests, OG/metadata polish, error reporting/observability,
-reader virtualization, the `search_document` VAPI tool, and the case study.
+Next up: integration tests against a disposable Postgres, structured error
+reporting, the `search_document` VAPI tool with tool-specific auth, and a reader
+metadata cache.
 
 ---
 
