@@ -28,17 +28,20 @@ const redisToken = env.UPSTASH_REDIS_REST_TOKEN;
 const redis =
   redisUrl && redisToken ? new Redis({ url: redisUrl, token: redisToken }) : null;
 
-if (env.NODE_ENV === "production" && !redis) {
-  console.warn(
-    "[rate-limit] Upstash is not configured; falling back to per-instance memory. " +
-      "Set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN for shared limits.",
-  );
-}
+let warnedAboutFallback = false;
 
 const upstashLimiters = new Map<string, Ratelimit>();
 
 function getUpstashLimiter(name: string, limit: number, windowSeconds: number) {
   if (!redis) {
+    if (env.NODE_ENV === "production" && !warnedAboutFallback) {
+      warnedAboutFallback = true;
+      console.warn(
+        "[rate-limit] Upstash is not configured; falling back to per-instance memory. " +
+          "Set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN for shared limits.",
+      );
+    }
+
     return null;
   }
 
