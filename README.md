@@ -1,5 +1,8 @@
 # Docify
 
+[![CI](https://github.com/xshubhamg/docify/actions/workflows/ci.yml/badge.svg)](https://github.com/xshubhamg/docify/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+
 **Voice-first document intelligence.** Upload a PDF, pick a voice, and hold a live
 conversation grounded in the document's text — with the source and transcript side
 by side.
