@@ -15,6 +15,13 @@
       "when": 1772818491439,
       "tag": "0001_tiny_cloak",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792369562590,
+      "tag": "0002_goofy_magdalene",
+      "breakpoints": true
     }
   ]
 }

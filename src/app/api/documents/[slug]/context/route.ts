@@ -7,7 +7,7 @@ import { enforceRateLimit } from "@/lib/rate-limit";
 const DEFAULT_LIMIT = 5;
 const MAX_LIMIT = 8;
 
-// Keyword search over a user's document segments for voice grounding.
+// Postgres full-text search over a user's document segments for voice grounding.
 //
 // Phase 1 (current): session-authenticated. The reader fetches an overview
 // (no query) before `vapi.start` and passes it via `variableValues`; the VAPI

@@ -1,0 +1,1 @@
+CREATE INDEX "document_segment_search_idx" ON "document_segment" USING gin (to_tsvector('english', "content"));

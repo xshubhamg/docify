@@ -9,11 +9,7 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "lcov"],
-      include: [
-        "src/lib/documents/utils.ts",
-        "src/lib/documents/search.ts",
-        "src/lib/zod.ts",
-      ],
+      include: ["src/lib/documents/utils.ts", "src/lib/zod.ts"],
       thresholds: {
         lines: 90,
         functions: 90,

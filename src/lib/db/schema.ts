@@ -1,4 +1,4 @@
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   pgTable,
   text,
@@ -139,6 +139,12 @@ export const documentSegment = pgTable(
     uniqueIndex("document_segment_document_segment_idx_key").on(
       table.documentId,
       table.segmentIndex,
+    ),
+    // Lexical full-text index for grounding search. Kept as an expression
+    // index so the stored text does not need a duplicated tsvector column.
+    index("document_segment_search_idx").using(
+      "gin",
+      sql`to_tsvector('english', ${table.content})`,
     ),
   ],
 );

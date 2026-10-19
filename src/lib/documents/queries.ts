@@ -11,7 +11,6 @@ import type {
   DocumentSegmentPreview,
 } from "@/lib/documents/types";
 import { createSlug, truncateText } from "@/lib/documents/utils";
-import { scoreSegmentContent, tokenizeQuery } from "@/lib/documents/search";
 
 const DEFAULT_COVER_URL = "/default-cover.svg";
 const CONTEXT_CONTENT_MAX_LENGTH = 1500;
@@ -182,29 +181,48 @@ export async function searchDocumentSegments(
     return null;
   }
 
-  const rows = await db
-    .select()
-    .from(documentSegment)
-    .where(eq(documentSegment.documentId, doc.id))
-    .orderBy(asc(documentSegment.segmentIndex));
+  const trimmedQuery = query.trim();
+  const selection = {
+    segmentIndex: documentSegment.segmentIndex,
+    pageNumber: documentSegment.pageNumber,
+    wordCount: documentSegment.wordCount,
+    content: sql<string>`left(${documentSegment.content}, ${CONTEXT_CONTENT_MAX_LENGTH})`,
+  };
 
-  const terms = tokenizeQuery(query);
+  type ContextRow = {
+    segmentIndex: number;
+    pageNumber: number | null;
+    wordCount: number;
+    content: string;
+  };
 
-  let picked = rows;
+  let rows: ContextRow[] = [];
 
-  if (terms.length) {
-    const matched = rows
-      .map((row) => ({ row, score: scoreSegmentContent(row.content, terms) }))
-      .filter((entry) => entry.score > 0)
-      .sort(
-        (first, second) =>
-          second.score - first.score || first.row.segmentIndex - second.row.segmentIndex,
+  if (trimmedQuery) {
+    // Lexical full-text search, not semantic retrieval. `websearch_to_tsquery`
+    // accepts arbitrary user input without throwing on punctuation or quotes.
+    const tsQuery = sql`websearch_to_tsquery('english', ${trimmedQuery})`;
+    const vector = sql`to_tsvector('english', ${documentSegment.content})`;
+
+    rows = await db
+      .select(selection)
+      .from(documentSegment)
+      .where(and(eq(documentSegment.documentId, doc.id), sql`${vector} @@ ${tsQuery}`))
+      .orderBy(
+        desc(sql`ts_rank_cd(${vector}, ${tsQuery})`),
+        asc(documentSegment.segmentIndex),
       )
-      .map((entry) => entry.row);
+      .limit(limit);
+  }
 
-    picked = (matched.length ? matched : rows).slice(0, limit);
-  } else {
-    picked = rows.slice(0, limit);
+  // No query, or no lexical match: ground the call in the opening segments.
+  if (!rows.length) {
+    rows = await db
+      .select(selection)
+      .from(documentSegment)
+      .where(eq(documentSegment.documentId, doc.id))
+      .orderBy(asc(documentSegment.segmentIndex))
+      .limit(limit);
   }
 
   return {
@@ -217,7 +235,7 @@ export async function searchDocumentSegments(
       totalSegments: doc.totalSegments,
     },
     query,
-    segments: picked.map((row) => ({
+    segments: rows.map((row) => ({
       segmentIndex: row.segmentIndex,
       pageNumber: row.pageNumber,
       wordCount: row.wordCount,
