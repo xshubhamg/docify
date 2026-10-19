@@ -5,19 +5,7 @@ import { SignOutButton } from "@/components/settings/SignOutButton";
 import { ThemePreference } from "@/components/settings/ThemePreference";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { auth } from "@/lib/auth";
-
-function getInitials(name?: string | null) {
-  if (!name) {
-    return "?";
-  }
-
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-}
+import { getInitials } from "@/lib/utils";
 
 export default async function SettingsPage() {
   const session = await auth.api.getSession({ headers: await headers() });

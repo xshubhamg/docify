@@ -11,7 +11,7 @@ import { Button } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Separator } from "./ui/separator";
 import { authClient } from "@/lib/auth-client";
-import { cn } from "@/lib/utils";
+import { cn, getInitials } from "@/lib/utils";
 
 const publicNavItems = [
   { label: "Features", href: "/#features" },
@@ -23,19 +23,6 @@ const authenticatedNavItems = [
   { label: "Add new", href: "/documents/new" },
   { label: "Pricing", href: "/pricing" },
 ];
-
-function getInitials(name?: string | null) {
-  if (!name) {
-    return "?";
-  }
-
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-}
 
 function isActivePath(pathname: string, href: string) {
   if (href === "/#features") {
