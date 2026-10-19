@@ -71,6 +71,13 @@ const statusLabelMap: Record<VoiceStatus, string> = {
   error: "Needs attention",
 };
 
+// Keep only a sliding window of PDF pages mounted. Rendering every page of a
+// long document at once is the main jank source in the reader; the placeholders
+// keep scroll height stable so navigation and the observer still work.
+const PAGE_RENDER_WINDOW = 2;
+const PAGE_ASPECT_RATIO_FALLBACK = 1.35;
+const PAGE_HEADER_HEIGHT = 44;
+
 function DocumentReader({ document }: { document: DocumentReaderData }) {
   const [numPages, setNumPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
@@ -377,6 +384,9 @@ function DocumentReader({ document }: { document: DocumentReaderData }) {
     [numPages],
   );
 
+  const estimatedPageHeight =
+    Math.round(pageWidth * PAGE_ASPECT_RATIO_FALLBACK) + PAGE_HEADER_HEIGHT;
+
   const allTranscript = partialTranscript
     ? [...transcript, partialTranscript]
     : transcript;
@@ -541,28 +551,43 @@ function DocumentReader({ document }: { document: DocumentReaderData }) {
               }}
             >
               <div className="mx-auto flex max-w-[900px] flex-col gap-5">
-                {navigationPages.map((pageNumber) => (
-                  <div
-                    key={pageNumber}
-                    ref={(node) => {
-                      pageRefs.current[pageNumber - 1] = node;
-                    }}
-                    data-page-number={pageNumber}
-                    className="shadow-soft-sm rounded-[20px] border border-(--border-subtle) bg-white p-3"
-                  >
-                    <div className="mb-3 flex items-center justify-between px-2">
-                      <span className="text-xs font-semibold tracking-[0.18em] text-slate-400 uppercase">
-                        Page {pageNumber}
-                      </span>
+                {navigationPages.map((pageNumber) => {
+                  const isNearCurrentPage =
+                    Math.abs(pageNumber - currentPage) <= PAGE_RENDER_WINDOW;
+
+                  return (
+                    <div
+                      key={pageNumber}
+                      ref={(node) => {
+                        pageRefs.current[pageNumber - 1] = node;
+                      }}
+                      data-page-number={pageNumber}
+                      className="shadow-soft-sm rounded-[20px] border border-(--border-subtle) bg-white p-3"
+                    >
+                      <div className="mb-3 flex items-center justify-between px-2">
+                        <span className="text-xs font-semibold tracking-[0.18em] text-slate-400 uppercase">
+                          Page {pageNumber}
+                        </span>
+                      </div>
+                      {isNearCurrentPage ? (
+                        <Page
+                          pageNumber={pageNumber}
+                          width={pageWidth}
+                          renderAnnotationLayer
+                          renderTextLayer
+                        />
+                      ) : (
+                        <div
+                          aria-hidden="true"
+                          style={{ minHeight: estimatedPageHeight }}
+                          className="flex items-center justify-center rounded-[12px] bg-(--bg-secondary) text-sm text-(--text-muted)"
+                        >
+                          Page {pageNumber}
+                        </div>
+                      )}
                     </div>
-                    <Page
-                      pageNumber={pageNumber}
-                      width={pageWidth}
-                      renderAnnotationLayer
-                      renderTextLayer
-                    />
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </Document>
           </div>
@@ -580,7 +605,10 @@ function DocumentReader({ document }: { document: DocumentReaderData }) {
           <TabsContent value="navigate" className="mt-4 space-y-4">
             <div className="rounded-[20px] bg-(--bg-card) p-4">
               <div className="flex items-start gap-3">
-                <BookOpenText className="mt-0.5 size-5 text-(--color-brand)" />
+                <BookOpenText
+                  className="mt-0.5 size-5 text-(--color-brand)"
+                  aria-hidden="true"
+                />
                 <div className="space-y-1">
                   <p className="font-serif text-lg font-semibold text-(--text-primary)">
                     Page Navigator
@@ -620,14 +648,17 @@ function DocumentReader({ document }: { document: DocumentReaderData }) {
           <TabsContent value="segments" className="mt-4 space-y-4">
             <div className="rounded-[20px] bg-(--bg-card) p-4">
               <div className="flex items-start gap-3">
-                <Sparkles className="mt-0.5 size-5 text-(--color-brand)" />
+                <Sparkles
+                  className="mt-0.5 size-5 text-(--color-brand)"
+                  aria-hidden="true"
+                />
                 <div className="space-y-1">
                   <p className="font-serif text-lg font-semibold text-(--text-primary)">
-                    Semantic Segments
+                    Document Segments
                   </p>
                   <p className="text-sm text-(--text-secondary)">
-                    These chunks come from your ingestion pipeline and are ready for
-                    retrieval and voice grounding.
+                    The chunks produced when your PDF was ingested. They are what voice
+                    answers are grounded in.
                   </p>
                 </div>
               </div>
