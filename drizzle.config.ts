@@ -1,4 +1,8 @@
+import { loadEnvConfig } from "@next/env";
 import { defineConfig } from "drizzle-kit";
+
+// Drizzle runs outside Next.js, so load `.env.local` the same way the app does.
+loadEnvConfig(process.cwd());
 
 const databaseUrl = process.env.DATABASE_URL;
 
