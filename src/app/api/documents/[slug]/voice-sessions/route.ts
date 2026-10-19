@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { auth } from "@/lib/auth";
+import { requireSession, toErrorResponse } from "@/lib/api";
 import {
   createVoiceSession,
   getDocumentBySlugForUser,
@@ -11,46 +11,40 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ slug: string }> },
 ) {
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
+  try {
+    const session = await requireSession(request);
+    const { slug } = await params;
+    const doc = await getDocumentBySlugForUser(session.user.id, slug);
 
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!doc) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
+    const voiceSessions = await listVoiceSessionsForDocument(session.user.id, doc.id);
+
+    return NextResponse.json({ voiceSessions });
+  } catch (error) {
+    return toErrorResponse(error, "Could not load voice sessions.");
   }
-
-  const { slug } = await params;
-  const doc = await getDocumentBySlugForUser(session.user.id, slug);
-
-  if (!doc) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
-
-  const voiceSessions = await listVoiceSessionsForDocument(session.user.id, doc.id);
-
-  return NextResponse.json({ voiceSessions });
 }
 
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ slug: string }> },
 ) {
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
+  try {
+    const session = await requireSession(request);
+    const { slug } = await params;
+    const doc = await getDocumentBySlugForUser(session.user.id, slug);
 
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!doc) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
+    const voiceSession = await createVoiceSession(session.user.id, doc.id);
+
+    return NextResponse.json({ voiceSession }, { status: 201 });
+  } catch (error) {
+    return toErrorResponse(error, "Could not start a voice session.");
   }
-
-  const { slug } = await params;
-  const doc = await getDocumentBySlugForUser(session.user.id, slug);
-
-  if (!doc) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
-
-  const voiceSession = await createVoiceSession(session.user.id, doc.id);
-
-  return NextResponse.json({ voiceSession }, { status: 201 });
 }

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { auth } from "@/lib/auth";
+import { requireSession, toErrorResponse } from "@/lib/api";
 import { searchDocumentSegments } from "@/lib/documents/queries";
 
 const DEFAULT_LIMIT = 5;
@@ -19,27 +19,24 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ slug: string }> },
 ) {
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
+  try {
+    const session = await requireSession(request);
+    const { slug } = await params;
+    const url = new URL(request.url);
+    const query = (url.searchParams.get("query") ?? "").slice(0, 500);
+    const rawLimit = Number(url.searchParams.get("limit"));
+    const limit = Number.isFinite(rawLimit)
+      ? Math.min(Math.max(Math.floor(rawLimit), 1), MAX_LIMIT)
+      : DEFAULT_LIMIT;
 
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const result = await searchDocumentSegments(session.user.id, slug, query, limit);
+
+    if (!result) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(result);
+  } catch (error) {
+    return toErrorResponse(error, "Could not search the document.");
   }
-
-  const { slug } = await params;
-  const url = new URL(request.url);
-  const query = (url.searchParams.get("query") ?? "").slice(0, 500);
-  const rawLimit = Number(url.searchParams.get("limit"));
-  const limit = Number.isFinite(rawLimit)
-    ? Math.min(Math.max(Math.floor(rawLimit), 1), MAX_LIMIT)
-    : DEFAULT_LIMIT;
-
-  const result = await searchDocumentSegments(session.user.id, slug, query, limit);
-
-  if (!result) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
-
-  return NextResponse.json(result);
 }

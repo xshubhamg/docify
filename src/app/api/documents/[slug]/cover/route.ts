@@ -1,53 +1,26 @@
 import { NextResponse } from "next/server";
 
-import { auth } from "@/lib/auth";
+import { requireSession, toErrorResponse } from "@/lib/api";
+import { streamPrivateBlob } from "@/lib/documents/blob-response";
 import { getDocumentBySlugForUser } from "@/lib/documents/queries";
-import { getPrivateBlob } from "@/lib/documents/storage";
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ slug: string }> },
 ) {
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
+  try {
+    const session = await requireSession(request);
+    const { slug } = await params;
+    const doc = await getDocumentBySlugForUser(session.user.id, slug);
 
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!doc || !doc.coverBlobKey) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
+    const response = await streamPrivateBlob(request, doc.coverBlobKey);
+
+    return response ?? NextResponse.json({ error: "Not found" }, { status: 404 });
+  } catch (error) {
+    return toErrorResponse(error, "Could not stream the cover image.");
   }
-
-  const { slug } = await params;
-  const doc = await getDocumentBySlugForUser(session.user.id, slug);
-
-  if (!doc || !doc.coverBlobKey) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
-
-  const result = await getPrivateBlob(
-    doc.coverBlobKey,
-    request.headers.get("if-none-match") ?? undefined,
-  );
-
-  if (!result) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
-
-  if (result.statusCode === 304) {
-    return new NextResponse(null, {
-      status: 304,
-      headers: {
-        ETag: result.blob.etag,
-        "Cache-Control": "private, no-cache",
-      },
-    });
-  }
-
-  return new NextResponse(result.stream, {
-    headers: {
-      "Content-Type": result.blob.contentType,
-      "X-Content-Type-Options": "nosniff",
-      ETag: result.blob.etag,
-      "Cache-Control": "private, no-cache",
-    },
-  });
 }

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod/v4";
 
-import { auth } from "@/lib/auth";
+import { requireSession, toErrorResponse } from "@/lib/api";
 import { deleteBlob } from "@/lib/documents/storage";
 import { assertOwnedBlobPathname } from "@/lib/documents/utils";
 
@@ -22,15 +22,8 @@ function getBlobKind(pathname: string): "pdf" | "cover" {
 }
 
 export async function POST(request: Request) {
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
-
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
+    const session = await requireSession(request);
     const { pathnames } = cleanupBlobSchema.parse(await request.json());
 
     await Promise.allSettled(
@@ -43,9 +36,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Could not clean up uploaded blobs.";
-
-    return NextResponse.json({ error: message }, { status: 400 });
+    return toErrorResponse(error, "Could not clean up uploaded blobs.");
   }
 }

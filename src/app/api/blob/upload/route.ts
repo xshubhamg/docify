@@ -1,13 +1,13 @@
 import { type HandleUploadBody, handleUpload } from "@vercel/blob/client";
 import { NextResponse } from "next/server";
 
+import { requireSession, toErrorResponse } from "@/lib/api";
 import {
   ACCEPTED_IMAGE_TYPES,
   ACCEPTED_PDF_TYPES,
   MAX_FILE_SIZE,
   MAX_IMAGE_SIZE,
 } from "@/lib/constants";
-import { auth } from "@/lib/auth";
 
 function parseClientPayload(payload: string | null) {
   if (!payload) {
@@ -24,17 +24,10 @@ function parseClientPayload(payload: string | null) {
 }
 
 export async function POST(request: Request) {
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
-
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const body = (await request.json()) as HandleUploadBody;
-
   try {
+    const session = await requireSession(request);
+    const body = (await request.json()) as HandleUploadBody;
+
     const jsonResponse = await handleUpload({
       request,
       body,
@@ -57,9 +50,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json(jsonResponse);
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Could not authorize upload.";
-
-    return NextResponse.json({ error: message }, { status: 400 });
+    return toErrorResponse(error, "Could not authorize upload.");
   }
 }

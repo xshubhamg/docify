@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod/v4";
 
-import { auth } from "@/lib/auth";
+import { requireSession, toErrorResponse } from "@/lib/api";
 import { finishVoiceSession, getDocumentBySlugForUser } from "@/lib/documents/queries";
 
 const finishVoiceSessionSchema = z.object({
@@ -12,22 +12,15 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ slug: string; sessionId: string }> },
 ) {
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
-
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const { slug, sessionId } = await params;
-  const doc = await getDocumentBySlugForUser(session.user.id, slug);
-
-  if (!doc) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
-
   try {
+    const session = await requireSession(request);
+    const { slug, sessionId } = await params;
+    const doc = await getDocumentBySlugForUser(session.user.id, slug);
+
+    if (!doc) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
     const payload = finishVoiceSessionSchema.parse(await request.json());
     const voiceSession = await finishVoiceSession(
       session.user.id,
@@ -42,9 +35,6 @@ export async function PATCH(
 
     return NextResponse.json({ voiceSession });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Could not finish voice session.";
-
-    return NextResponse.json({ error: message }, { status: 400 });
+    return toErrorResponse(error, "Could not finish voice session.");
   }
 }
