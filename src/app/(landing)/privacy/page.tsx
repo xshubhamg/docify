@@ -84,9 +84,9 @@ export default function PrivacyPage() {
 
       <LegalSection title="7. Your choices">
         <p>
-          You can edit your profile, delete documents, and delete your account from the
-          app. For any other request, contact the maintainer through the project&apos;s
-          GitHub repository.
+          You can delete documents from the app and sign out of any session from Settings.
+          Account deletion and profile changes are handled by the maintainer for now —
+          contact them through the project&apos;s GitHub repository.
         </p>
       </LegalSection>
 
