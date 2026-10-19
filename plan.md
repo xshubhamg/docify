@@ -36,6 +36,27 @@ The plan closes that gap in **8 phases (~6–8 weeks part-time)**:
 | 7     | Observability & reliability | Production-grade operations                    |
 | 8     | Portfolio presentation      | README, case study, demo, docs site            |
 
+### Status (updated 2026-10-19)
+
+Shipped and committed:
+
+- **Phase 1** — Prettier, Husky, lint-staged, commitlint, stricter TypeScript,
+  governance docs, MIT license, `.env.example` tracked.
+- **Phase 2** — honest landing/auth copy, real `/pricing`, `/terms`, and `/privacy`
+  pages, Zod-validated env with fail-fast boot, centralized API auth/error mapping,
+  race-safe slug allocation, self-hosted pdfjs worker, CSP and security headers,
+  sliding-window rate limiting (Upstash or in-memory fallback).
+- **Phase 3** — Vitest suite (43 tests) with 90% coverage thresholds and a CI
+  workflow that runs lint, typecheck, coverage, and a production build.
+- **Phase 4 (partial)** — bounded segment previews in the reader payload and
+  Postgres full-text search with a GIN index, replacing in-memory scoring.
+- **Phase 5 (partial)** — keyboard/drag-accessible upload dropzones, responsive
+  mobile navigation, a real settings page, an accessible delete dialog, and removal
+  of ~200 lines of dead Clerk CSS.
+
+Next up: integration tests, OG/metadata polish, error reporting/observability,
+reader virtualization, the `search_document` VAPI tool, and the case study.
+
 ---
 
 ## 1. North Star
@@ -393,8 +414,8 @@ the core journey. **Commit count: ~9.**
 
 ### 4.2 Search scalability
 
-- [ ] Move keyword search into Postgres: `tsvector` column + GIN index (or `pg_trgm`
-      similarity). Keep the JSON contract, swap the implementation.
+- [x] Move keyword search into Postgres: expression `tsvector` + GIN index (or
+      `pg_trgm` similarity). Keep the JSON contract, swap the implementation.
   - `perf(search): replace in-memory scoring with postgres full-text search`
 - [ ] Add `EXPLAIN`-based test/benchmark for a 5k-segment corpus.
   - `test(search): benchmark full-text search on a large corpus`

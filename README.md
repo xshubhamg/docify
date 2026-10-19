@@ -8,7 +8,7 @@ conversation grounded in the document's text — with the source and transcript 
 by side.
 
 > Docify is an independent project in active development. It supports **PDFs** and
-> **keyword-grounded** voice Q&A. It does not claim Word, OCR, or semantic-RAG
+> **full-text-grounded** voice Q&A (lexical, not semantic). It does not claim Word, OCR, or semantic-RAG
 > support.
 
 ---

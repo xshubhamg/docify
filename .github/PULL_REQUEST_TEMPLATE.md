@@ -22,4 +22,4 @@
 - [ ] UI verified in light and dark themes, mobile and desktop
 - [ ] Docs updated (`README.md`, `AGENTS.md`, or ADRs) where needed
 - [ ] No secrets, raw blob URLs, or `access: "public"` introduced
-- [ ] Copy is accurate (PDF-only, keyword-grounded — no OCR/Word claims)
+- [ ] Copy is accurate (PDF-only, full-text-grounded — no OCR/Word/RAG claims)

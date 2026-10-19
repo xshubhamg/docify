@@ -72,5 +72,5 @@ when adding them, run Postgres locally and point a separate
 - Use the Catppuccin CSS tokens in `src/app/globals.css`; do not hardcode hex.
 - Throw `DocumentFlowError` for expected domain failures.
 - Never expose raw blob URLs or use `access: "public"` for user files.
-- Keep the product copy honest: Docify supports PDFs and keyword-grounded voice
+- Keep the product copy honest: Docify supports PDFs and full-text-grounded voice
   Q&A — not Word, OCR, or semantic RAG.

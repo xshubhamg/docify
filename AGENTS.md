@@ -31,7 +31,7 @@ voice conversation grounded in the document's content.
 - APIs: `/api/auth/[...all]`, `/api/blob/upload|cleanup`, `/api/documents` (POST create),
   `/api/documents/[slug]` (GET), `/file`, `/cover` (proxied private streams),
   `/voice-sessions` (POST) + `/voice-sessions/[sessionId]` (PATCH finish),
-  `/context?query=&limit=` (keyword search over segments, session-authenticated).
+  `/context?query=&limit=` (Postgres full-text search over segments, session-authenticated).
 
 ## Key Flows
 
@@ -60,10 +60,10 @@ metadata: { documentId, slug, voiceId }, voice: { provider: "11labs", voiceId, s
 - Errors: throw `DocumentFlowError(message, statusCode)` in `src/lib/documents/*`;
   map `ZodError→400`, `DocumentFlowError→its code`, else 500 without leaking internals.
 - Zod v4 (`zod/v4`): `UploadSchema` (client) / `createDocumentSchema` (server).
-- Types: `types.d.ts` (forms/cards) + `src/lib/documents/types.ts` (DB-facing).
+- Types: `src/lib/zod.ts` (form values) + `src/lib/documents/types.ts` (DB-facing).
 - Never: expose raw blob URLs (reader uses proxied routes), `access: "public"`,
   bare `vapi.start(ASSISTANT_ID)` without overrides, new `/pricing`-style dead links,
-  claims of Word/OCR/semantic-RAG support (keyword search only).
+  claims of Word/OCR/semantic-RAG support (lexical full-text search only).
 
 ## Env (see `.env.example`)
 
