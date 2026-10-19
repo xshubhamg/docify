@@ -41,6 +41,4 @@ export const createDocumentSchema = z.object({
       downloadUrl: z.string().url().optional(),
     })
     .optional(),
-  pdfFileSize: z.number().int().positive(),
-  pdfMimeType: z.string().min(1),
 });

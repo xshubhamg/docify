@@ -120,8 +120,6 @@ export default function UploadForm() {
               downloadUrl: coverUpload.downloadUrl,
             }
           : undefined,
-        pdfFileSize: values.pdf.size,
-        pdfMimeType: values.pdf.type,
       };
 
       const response = await fetch("/api/documents", {

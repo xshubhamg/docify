@@ -12,8 +12,6 @@ export interface CreateDocumentPayload {
   voice: string;
   pdf: UploadedBlobInput;
   coverImage?: UploadedBlobInput;
-  pdfFileSize: number;
-  pdfMimeType: string;
 }
 
 export interface SegmentInsert {
