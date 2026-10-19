@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { upload } from "@vercel/blob/client";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Upload, ImageIcon, X } from "lucide-react";
+import { Upload, ImageIcon, X, type LucideIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { z } from "zod/v4";
 
@@ -29,8 +29,6 @@ type UploadFormValues = z.infer<typeof UploadSchema>;
 export default function UploadForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const pdfInputRef = useRef<HTMLInputElement>(null);
-  const imageInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const { data: session } = authClient.useSession();
 
@@ -173,48 +171,15 @@ export default function UploadForm() {
               <FormItem>
                 <FormLabel className="form-label">Upload PDF</FormLabel>
                 <FormControl>
-                  <div
-                    className={cn(
-                      "upload-dropzone border-2 border-dashed border-(--border-medium)",
-                      pdfFile && "upload-dropzone-uploaded",
-                    )}
-                    onClick={() => pdfInputRef.current?.click()}
-                  >
-                    <input
-                      ref={pdfInputRef}
-                      type="file"
-                      accept=".pdf,application/pdf"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) field.onChange(file);
-                      }}
-                    />
-
-                    {pdfFile ? (
-                      <div className="flex items-center gap-3">
-                        <Upload className="upload-dropzone-icon" />
-                        <p className="upload-dropzone-text">{pdfFile.name}</p>
-                        <button
-                          type="button"
-                          className="upload-dropzone-remove"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            field.onChange(undefined);
-                            if (pdfInputRef.current) pdfInputRef.current.value = "";
-                          }}
-                        >
-                          <X className="h-5 w-5" />
-                        </button>
-                      </div>
-                    ) : (
-                      <>
-                        <Upload className="upload-dropzone-icon" />
-                        <p className="upload-dropzone-text">Click to upload PDF</p>
-                        <p className="upload-dropzone-hint">PDF file (max 50MB)</p>
-                      </>
-                    )}
-                  </div>
+                  <FileDropzone
+                    id="pdf-file"
+                    accept=".pdf,application/pdf"
+                    file={pdfFile}
+                    onFileChange={field.onChange}
+                    icon={Upload}
+                    title="Choose a PDF or drop it here"
+                    hint="PDF only, up to 50MB"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -229,52 +194,15 @@ export default function UploadForm() {
               <FormItem>
                 <FormLabel className="form-label">Cover Image</FormLabel>
                 <FormControl>
-                  <div
-                    className={cn(
-                      "upload-dropzone border-2 border-dashed border-(--border-medium)",
-                      coverImage && "upload-dropzone-uploaded",
-                    )}
-                    onClick={() => imageInputRef.current?.click()}
-                  >
-                    <input
-                      ref={imageInputRef}
-                      type="file"
-                      accept="image/jpeg,image/jpg,image/png,image/webp"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) field.onChange(file);
-                      }}
-                    />
-
-                    {coverImage ? (
-                      <div className="flex items-center gap-3">
-                        <ImageIcon className="upload-dropzone-icon" />
-                        <p className="upload-dropzone-text">{coverImage.name}</p>
-                        <button
-                          type="button"
-                          className="upload-dropzone-remove"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            field.onChange(undefined);
-                            if (imageInputRef.current) imageInputRef.current.value = "";
-                          }}
-                        >
-                          <X className="h-5 w-5" />
-                        </button>
-                      </div>
-                    ) : (
-                      <>
-                        <ImageIcon className="upload-dropzone-icon" />
-                        <p className="upload-dropzone-text">
-                          Click to upload cover image
-                        </p>
-                        <p className="upload-dropzone-hint">
-                          Leave empty to auto-generate from PDF
-                        </p>
-                      </>
-                    )}
-                  </div>
+                  <FileDropzone
+                    id="cover-file"
+                    accept="image/jpeg,image/jpg,image/png,image/webp"
+                    file={coverImage}
+                    onFileChange={field.onChange}
+                    icon={ImageIcon}
+                    title="Choose a cover image or drop it here"
+                    hint="JPG, PNG, or WebP up to 10MB. Leave empty for the default cover."
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -354,6 +282,113 @@ export default function UploadForm() {
         </form>
       </Form>
     </>
+  );
+}
+
+function FileDropzone({
+  id,
+  accept,
+  file,
+  onFileChange,
+  icon: Icon,
+  title,
+  hint,
+}: {
+  id: string;
+  accept: string;
+  file?: File;
+  onFileChange: (file: File | undefined) => void;
+  icon: LucideIcon;
+  title: string;
+  hint: string;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  function selectFile(files: FileList | null) {
+    const next = files?.[0];
+
+    if (next) {
+      onFileChange(next);
+    }
+  }
+
+  function clearFile() {
+    onFileChange(undefined);
+
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
+  }
+
+  return (
+    <div
+      className={cn(
+        "upload-dropzone border-2 border-dashed border-(--border-medium)",
+        file && "upload-dropzone-uploaded",
+        isDragging && "border-(--color-brand) bg-(--color-brand)/5",
+      )}
+      onDragEnter={(event) => {
+        event.preventDefault();
+        setIsDragging(true);
+      }}
+      onDragOver={(event) => {
+        event.preventDefault();
+        setIsDragging(true);
+      }}
+      onDragLeave={(event) => {
+        event.preventDefault();
+        setIsDragging(false);
+      }}
+      onDrop={(event) => {
+        event.preventDefault();
+        setIsDragging(false);
+        selectFile(event.dataTransfer.files);
+      }}
+    >
+      <input
+        ref={inputRef}
+        id={id}
+        type="file"
+        accept={accept}
+        className="hidden"
+        onChange={(event) => selectFile(event.target.files)}
+      />
+
+      {file ? (
+        <div className="flex flex-wrap items-center justify-center gap-3 px-4">
+          <Icon className="upload-dropzone-icon mb-0" aria-hidden="true" />
+          <p className="upload-dropzone-text max-w-[14rem] truncate">{file.name}</p>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              className="upload-dropzone-action"
+              onClick={() => inputRef.current?.click()}
+            >
+              Replace
+            </button>
+            <button
+              type="button"
+              className="upload-dropzone-remove"
+              aria-label={`Remove ${file.name}`}
+              onClick={clearFile}
+            >
+              <X className="h-5 w-5" aria-hidden="true" />
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          className="flex w-full flex-col items-center rounded-[6px] px-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-(--color-brand)"
+          onClick={() => inputRef.current?.click()}
+        >
+          <Icon className="upload-dropzone-icon" aria-hidden="true" />
+          <span className="upload-dropzone-text">{title}</span>
+          <span className="upload-dropzone-hint">{hint}</span>
+        </button>
+      )}
+    </div>
   );
 }
 
