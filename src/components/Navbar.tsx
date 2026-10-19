@@ -1,16 +1,17 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import { authClient } from "@/lib/auth-client";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { Loader2, LogOut, Menu, Settings, X } from "lucide-react";
+
 import { ThemeToggle } from "./ThemeToggle";
-import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Button } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Separator } from "./ui/separator";
-import { Loader2, LogOut, Settings } from "lucide-react";
-import { useState } from "react";
+import { authClient } from "@/lib/auth-client";
+import { cn } from "@/lib/utils";
 
 const publicNavItems = [
   { label: "Features", href: "/#features" },
@@ -24,51 +25,89 @@ const authenticatedNavItems = [
 ];
 
 function getInitials(name?: string | null) {
-  if (!name) return "?";
+  if (!name) {
+    return "?";
+  }
+
   return name
     .split(" ")
-    .map((w) => w[0])
+    .map((part) => part[0])
     .join("")
     .toUpperCase()
     .slice(0, 2);
 }
 
-const Navbar = () => {
+function isActivePath(pathname: string, href: string) {
+  if (href === "/#features") {
+    return false;
+  }
+
+  if (href === "/dashboard") {
+    return (
+      pathname === "/dashboard" ||
+      (pathname.startsWith("/documents/") && pathname !== "/documents/new")
+    );
+  }
+
+  return pathname === href;
+}
+
+export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session, isPending } = authClient.useSession();
-  const [open, setOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const navItems = session ? authenticatedNavItems : publicNavItems;
   const logoHref = session ? "/dashboard" : "/";
 
+  useEffect(() => {
+    if (!mobileOpen) {
+      return;
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setMobileOpen(false);
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [mobileOpen]);
+
   async function handleSignOut() {
-    setOpen(false);
+    setAccountOpen(false);
+    setMobileOpen(false);
     await authClient.signOut();
     router.push("/login");
     router.refresh();
   }
 
   return (
-    <header className="fixed z-50 w-full bg-(--bg-primary)">
+    <header className="fixed z-50 w-full border-b border-(--border-subtle) bg-(--bg-primary)/95 backdrop-blur">
       <div className="wrapper navbar-height flex items-center justify-between py-4">
         <Link href={logoHref} className="flex items-center gap-1">
           <span className="logo-text">Docify</span>
         </Link>
 
-        <nav className="flex w-fit items-center gap-7.5">
+        {/* Desktop navigation */}
+        <nav className="hidden items-center gap-7.5 md:flex" aria-label="Primary">
           {navItems.map((item) => (
-            <Link key={item.href} href={item.href} className="nav-link-base">
-              <span
-                className={cn(
-                  "nav-link-base",
-                  pathname === item.href
-                    ? "nav-link-active"
-                    : "text-(--text-primary) hover:opacity-70",
-                )}
-              >
-                {item.label}
-              </span>
+            <Link
+              key={item.href}
+              href={item.href}
+              aria-current={isActivePath(pathname, item.href) ? "page" : undefined}
+              className={cn(
+                "nav-link-base",
+                isActivePath(pathname, item.href)
+                  ? "nav-link-active"
+                  : "text-(--text-primary) hover:opacity-70",
+              )}
+            >
+              {item.label}
             </Link>
           ))}
 
@@ -76,9 +115,12 @@ const Navbar = () => {
             {isPending ? (
               <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
             ) : session ? (
-              <Popover open={open} onOpenChange={setOpen}>
+              <Popover open={accountOpen} onOpenChange={setAccountOpen}>
                 <PopoverTrigger asChild>
-                  <button className="cursor-pointer rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                  <button
+                    className="cursor-pointer rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    aria-label="Open account menu"
+                  >
                     <Avatar size="lg">
                       <AvatarImage
                         src={session.user.image ?? undefined}
@@ -128,7 +170,7 @@ const Navbar = () => {
 
                   <Link
                     href="/settings"
-                    onClick={() => setOpen(false)}
+                    onClick={() => setAccountOpen(false)}
                     className="flex items-center gap-2.5 px-4 py-3 text-sm font-medium text-(--text-primary) transition-colors hover:bg-(--bg-tertiary)"
                   >
                     <Settings className="size-4" />
@@ -163,9 +205,97 @@ const Navbar = () => {
             )}
           </div>
         </nav>
+
+        {/* Mobile controls */}
+        <div className="flex items-center gap-2 md:hidden">
+          <ThemeToggle />
+          <button
+            type="button"
+            className="flex size-9 cursor-pointer items-center justify-center rounded-lg bg-(--bg-secondary) transition-colors hover:bg-(--bg-tertiary)"
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-menu"
+            onClick={() => setMobileOpen((current) => !current)}
+          >
+            {mobileOpen ? (
+              <X className="size-5 text-(--text-primary)" />
+            ) : (
+              <Menu className="size-5 text-(--text-primary)" />
+            )}
+          </button>
+        </div>
       </div>
+
+      {mobileOpen ? (
+        <div
+          id="mobile-menu"
+          className="border-t border-(--border-subtle) bg-(--bg-primary) px-5 py-4 md:hidden"
+        >
+          <nav className="flex flex-col gap-1" aria-label="Mobile">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setMobileOpen(false)}
+                aria-current={isActivePath(pathname, item.href) ? "page" : undefined}
+                className={cn(
+                  "rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                  isActivePath(pathname, item.href)
+                    ? "bg-(--bg-secondary) text-(--color-brand)"
+                    : "text-(--text-primary) hover:bg-(--bg-secondary)",
+                )}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+
+          {session ? (
+            <div className="mt-4 border-t border-(--border-subtle) pt-4">
+              <p className="truncate text-sm font-semibold text-(--text-primary)">
+                {session.user.name}
+              </p>
+              <p className="mb-3 truncate text-xs text-(--text-muted)">
+                {session.user.email}
+              </p>
+              <div className="flex flex-col gap-1">
+                <Link
+                  href="/settings"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-(--text-primary) hover:bg-(--bg-secondary)"
+                >
+                  <Settings className="size-4" />
+                  Settings
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-(--text-primary) hover:bg-(--bg-secondary)"
+                >
+                  <LogOut className="size-4" />
+                  Log out
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="mt-4 flex gap-2 border-t border-(--border-subtle) pt-4">
+              <Button variant="outline" asChild className="flex-1">
+                <Link href="/login" onClick={() => setMobileOpen(false)}>
+                  Log in
+                </Link>
+              </Button>
+              <Button
+                asChild
+                className="flex-1 bg-(--color-brand) text-white hover:bg-(--color-brand-hover) dark:text-black"
+              >
+                <Link href="/signup" onClick={() => setMobileOpen(false)}>
+                  Sign up
+                </Link>
+              </Button>
+            </div>
+          )}
+        </div>
+      ) : null}
     </header>
   );
-};
-
-export default Navbar;
+}
