@@ -2,7 +2,7 @@ import { File } from "node:buffer";
 
 import { describe, expect, it } from "vitest";
 
-import { MAX_FILE_SIZE } from "@/lib/constants";
+import { MAX_FILE_SIZE, MAX_IMAGE_SIZE } from "@/lib/constants";
 import { createDocumentSchema, UploadSchema } from "@/lib/zod";
 
 function pdfFile(size = 8) {
@@ -45,6 +45,29 @@ describe("UploadSchema", () => {
     Object.defineProperty(file, "size", { value: MAX_FILE_SIZE + 1 });
 
     expect(UploadSchema.safeParse({ ...base, pdf: file }).success).toBe(false);
+  });
+
+  it("accepts a valid cover image", () => {
+    const cover = new File([new Uint8Array(8)], "cover.png", { type: "image/png" });
+
+    expect(UploadSchema.safeParse({ ...base, coverImage: cover }).success).toBe(true);
+  });
+
+  it("accepts an upload without a cover image", () => {
+    expect(UploadSchema.safeParse({ ...base, coverImage: undefined }).success).toBe(true);
+  });
+
+  it("rejects a cover image with an unsupported type", () => {
+    const cover = new File(["hello"], "cover.txt", { type: "text/plain" });
+
+    expect(UploadSchema.safeParse({ ...base, coverImage: cover }).success).toBe(false);
+  });
+
+  it("rejects a cover image over the size limit", () => {
+    const cover = new File([new Uint8Array(8)], "cover.png", { type: "image/png" });
+    Object.defineProperty(cover, "size", { value: MAX_IMAGE_SIZE + 1 });
+
+    expect(UploadSchema.safeParse({ ...base, coverImage: cover }).success).toBe(false);
   });
 });
 
