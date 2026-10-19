@@ -11,6 +11,7 @@ import type {
   DocumentSegmentPreview,
 } from "@/lib/documents/types";
 import { createSlug, truncateText } from "@/lib/documents/utils";
+import { scoreSegmentContent, tokenizeQuery } from "@/lib/documents/search";
 
 const DEFAULT_COVER_URL = "/default-cover.svg";
 const CONTEXT_CONTENT_MAX_LENGTH = 1500;
@@ -156,30 +157,6 @@ export async function getDocumentReaderData(
   };
 }
 
-function scoreSegmentContent(content: string, terms: string[]) {
-  const haystack = content.toLowerCase();
-  let score = 0;
-
-  for (const term of terms) {
-    let fromIndex = 0;
-    let hits = 0;
-
-    while (hits < 20) {
-      const found = haystack.indexOf(term, fromIndex);
-
-      if (found === -1) {
-        break;
-      }
-
-      score += 1;
-      hits += 1;
-      fromIndex = found + term.length;
-    }
-  }
-
-  return score;
-}
-
 export async function searchDocumentSegments(
   userId: string,
   slug: string,
@@ -198,10 +175,7 @@ export async function searchDocumentSegments(
     .where(eq(documentSegment.documentId, doc.id))
     .orderBy(asc(documentSegment.segmentIndex));
 
-  const terms = query
-    .toLowerCase()
-    .split(/[^a-z0-9]+/)
-    .filter((term) => term.length > 2);
+  const terms = tokenizeQuery(query);
 
   let picked = rows;
 
