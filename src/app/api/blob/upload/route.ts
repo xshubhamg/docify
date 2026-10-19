@@ -1,27 +1,36 @@
 import { type HandleUploadBody, handleUpload } from "@vercel/blob/client";
 import { NextResponse } from "next/server";
 
-import { requireSession, toErrorResponse } from "@/lib/api";
+import { BadRequestError, requireSession, toErrorResponse } from "@/lib/api";
 import {
   ACCEPTED_IMAGE_TYPES,
   ACCEPTED_PDF_TYPES,
   MAX_FILE_SIZE,
   MAX_IMAGE_SIZE,
 } from "@/lib/constants";
+import { assertOwnedBlobPathname } from "@/lib/documents/utils";
 import { enforceRateLimit } from "@/lib/rate-limit";
 
-function parseClientPayload(payload: string | null) {
+function parseClientPayload(payload: string | null): { kind: "pdf" | "cover" } {
   if (!payload) {
-    throw new Error("Missing upload payload.");
+    throw new BadRequestError("Missing upload payload.");
   }
 
-  const parsed = JSON.parse(payload) as { kind?: "pdf" | "cover" };
+  let parsed: { kind?: "pdf" | "cover" };
 
-  if (parsed.kind !== "pdf" && parsed.kind !== "cover") {
-    throw new Error("Unsupported upload kind.");
+  try {
+    parsed = JSON.parse(payload) as { kind?: "pdf" | "cover" };
+  } catch {
+    throw new BadRequestError("Malformed upload payload.");
   }
 
-  return parsed;
+  const kind = parsed.kind;
+
+  if (kind !== "pdf" && kind !== "cover") {
+    throw new BadRequestError("Unsupported upload kind.");
+  }
+
+  return { kind };
 }
 
 export async function POST(request: Request) {
@@ -45,11 +54,7 @@ export async function POST(request: Request) {
       body,
       onBeforeGenerateToken: async (pathname, clientPayload) => {
         const { kind } = parseClientPayload(clientPayload);
-        const expectedPrefix = `users/${session.user.id}/${kind}/`;
-
-        if (!pathname.startsWith(expectedPrefix)) {
-          throw new Error("Invalid upload path.");
-        }
+        assertOwnedBlobPathname(session.user.id, kind, pathname);
 
         return {
           addRandomSuffix: false,

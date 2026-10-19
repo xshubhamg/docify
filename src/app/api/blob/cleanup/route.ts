@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod/v4";
 
-import { requireSession, toErrorResponse } from "@/lib/api";
+import { BadRequestError, requireSession, toErrorResponse } from "@/lib/api";
 import { deleteBlob } from "@/lib/documents/storage";
 import { assertOwnedBlobPathname } from "@/lib/documents/utils";
 import { enforceRateLimit } from "@/lib/rate-limit";
@@ -19,7 +19,7 @@ function getBlobKind(pathname: string): "pdf" | "cover" {
     return "cover";
   }
 
-  throw new Error("Invalid blob pathname.");
+  throw new BadRequestError("Invalid blob pathname.");
 }
 
 export async function POST(request: Request) {

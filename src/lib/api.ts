@@ -13,6 +13,14 @@ class UnauthorizedError extends Error {
   }
 }
 
+/** A malformed request from the client, safe to surface as a 400. */
+export class BadRequestError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "BadRequestError";
+  }
+}
+
 export async function getSessionOrNull(request: Request) {
   return auth.api.getSession({ headers: request.headers });
 }
@@ -44,6 +52,10 @@ export function toErrorResponse(error: unknown, fallback: string) {
     return jsonError("Unauthorized", 401);
   }
 
+  if (error instanceof BadRequestError) {
+    return jsonError(error.message, 400);
+  }
+
   if (error instanceof ZodError) {
     return NextResponse.json(
       { error: "Invalid request payload.", details: error.issues },
@@ -55,7 +67,7 @@ export function toErrorResponse(error: unknown, fallback: string) {
     return jsonError(error.message, error.statusCode);
   }
 
-  console.error(error);
+  console.error(`[api] ${fallback}`, error);
 
   return jsonError(fallback, 500);
 }
