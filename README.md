@@ -10,6 +10,9 @@ by side.
 > Docify is an independent project in active development. It supports **PDFs** and
 > **full-text-grounded** voice Q&A — lexical search, not semantic retrieval. It does
 > not claim Word, OCR, or RAG support.
+>
+> 📄 [Engineering case study](./docs/case-study.md) — the problem, decisions, and
+> trade-offs behind the implementation.
 
 ---
 
