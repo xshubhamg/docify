@@ -86,6 +86,8 @@ function DocumentReader({ document }: { document: DocumentReaderData }) {
   const [volumeLevel, setVolumeLevel] = useState(0);
   const [pastSessions, setPastSessions] = useState<PastVoiceSession[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const router = useRouter();
 
   const publicKey = process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY;
@@ -96,6 +98,7 @@ function DocumentReader({ document }: { document: DocumentReaderData }) {
   const vapiRef = useRef<Vapi | null>(null);
   const activeVoiceSessionIdRef = useRef<string | null>(null);
   const finalizingVoiceSessionRef = useRef(false);
+  const deleteDialogRef = useRef<HTMLDialogElement>(null);
 
   const voice = voiceOptions[document.voiceId as keyof typeof voiceOptions];
   const canStartVoice = Boolean(publicKey && assistantId);
@@ -130,20 +133,24 @@ function DocumentReader({ document }: { document: DocumentReaderData }) {
     };
   }, [document.slug]);
 
+  function openDeleteDialog() {
+    setDeleteError(null);
+    deleteDialogRef.current?.showModal();
+    setDeleteDialogOpen(true);
+  }
+
+  function closeDeleteDialog() {
+    deleteDialogRef.current?.close();
+    setDeleteDialogOpen(false);
+  }
+
   async function handleDelete() {
     if (isDeleting) {
       return;
     }
 
-    const confirmed = window.confirm(
-      `Delete "${document.title}"? This removes the file, segments, and voice history.`,
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
     setIsDeleting(true);
+    setDeleteError(null);
 
     try {
       const response = await fetch(`/api/documents/${document.slug}`, {
@@ -154,12 +161,13 @@ function DocumentReader({ document }: { document: DocumentReaderData }) {
         throw new Error("Could not delete the document.");
       }
 
+      deleteDialogRef.current?.close();
       router.push("/dashboard");
       router.refresh();
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Could not delete the document.";
-      setErrorMessage(message);
+      setDeleteError(message);
       setIsDeleting(false);
     }
   }
@@ -498,9 +506,11 @@ function DocumentReader({ document }: { document: DocumentReaderData }) {
               </span>
               <button
                 type="button"
-                onClick={handleDelete}
+                onClick={openDeleteDialog}
                 disabled={isDeleting || callActive}
                 title="Delete document"
+                aria-label="Delete document"
+                aria-haspopup="dialog"
                 className="cursor-pointer rounded-full bg-(--bg-card) px-3 py-2 text-xs font-medium text-(--red-700) transition-colors hover:bg-(--red-50) disabled:opacity-50"
               >
                 {isDeleting ? (
@@ -836,6 +846,71 @@ function DocumentReader({ document }: { document: DocumentReaderData }) {
           </div>
         )}
       </aside>
+
+      <dialog
+        ref={deleteDialogRef}
+        onClose={() => setDeleteDialogOpen(false)}
+        aria-labelledby="delete-dialog-title"
+        aria-describedby="delete-dialog-description"
+        className="m-auto max-h-[90vh] w-[min(92vw,28rem)] overflow-y-auto rounded-2xl border border-(--border-subtle) bg-(--bg-card) p-0 text-(--text-primary) backdrop:bg-black/60"
+      >
+        {deleteDialogOpen ? (
+          <div className="p-6">
+            <div className="flex items-center gap-3">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-(--red-50)">
+                <Trash2 className="size-5 text-(--red-700)" aria-hidden="true" />
+              </span>
+              <h2
+                id="delete-dialog-title"
+                className="font-serif text-xl font-semibold text-(--text-primary)"
+              >
+                Delete this document?
+              </h2>
+            </div>
+
+            <p
+              id="delete-dialog-description"
+              className="mt-4 text-sm leading-6 text-(--text-secondary)"
+            >
+              &ldquo;{document.title}&rdquo; and its extracted segments and voice history
+              will be permanently removed. This cannot be undone.
+            </p>
+
+            {deleteError ? (
+              <p
+                role="alert"
+                className="mt-4 rounded-lg border border-(--red-200) bg-(--red-50) px-3 py-2 text-sm text-(--red-700)"
+              >
+                {deleteError}
+              </p>
+            ) : null}
+
+            <div className="mt-6 flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={closeDeleteDialog}
+                disabled={isDeleting}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="bg-(--red-500) text-white hover:bg-(--red-600)"
+              >
+                {isDeleting ? (
+                  <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+                ) : (
+                  <Trash2 className="size-4" aria-hidden="true" />
+                )}
+                Delete document
+              </Button>
+            </div>
+          </div>
+        ) : null}
+      </dialog>
     </div>
   );
 }
