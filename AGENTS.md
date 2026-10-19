@@ -22,7 +22,8 @@ voice conversation grounded in the document's content.
 - Auth: Better-Auth email+password + Google OAuth. API handler: `src/app/api/auth/[...all]/route.ts`.
 - Storage: Vercel Blob, `access: "private"` always. Keys: `users/{userId}/{pdf|cover}/{uuid}-{sanitized}`.
 - Voice/AI: VAPI (`@vapi-ai/web`, static `NEXT_PUBLIC_ASSISTANT_ID`) + ElevenLabs voice IDs.
-- PDF: server `pdfjs-dist/legacy`, client `react-pdf` (CDN worker). Chunking: 180 words / 30 overlap per page.
+- PDF: server `pdfjs-dist/legacy`, client `react-pdf` (worker synced to
+  `public/pdf.worker.min.mjs` by `bun run pdf:worker`). Chunking: 180 words / 30 overlap per page.
 
 ## Routes & Layout Groups
 
