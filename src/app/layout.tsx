@@ -3,6 +3,7 @@ import { IBM_Plex_Sans, Mona_Sans } from "next/font/google";
 
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { env } from "@/lib/env";
 
 const ibmPlexSans = IBM_Plex_Sans({
   variable: "--font-ibm-plex-serif",
@@ -17,10 +18,25 @@ const monaSans = Mona_Sans({
   display: "swap",
 });
 
+const description =
+  "Upload a PDF and hold a live voice conversation grounded in its text, with the source and transcript side by side.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(env.BETTER_AUTH_URL),
   title: "Docify — Voice-first document intelligence",
-  description:
-    "Upload a PDF and hold a live voice conversation grounded in its text, with the source and transcript side by side.",
+  description,
+  openGraph: {
+    type: "website",
+    siteName: "Docify",
+    title: "Docify — Voice-first document intelligence",
+    description,
+    url: env.BETTER_AUTH_URL,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Docify — Voice-first document intelligence",
+    description,
+  },
 };
 
 export default function RootLayout({
