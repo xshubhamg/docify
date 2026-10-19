@@ -75,6 +75,13 @@
 
   --success: #40a02b;
   --warning: #df8e1d;
+  --red-50: #fdecef;
+  --red-200: #f3b8c6;
+  --red-400: #e05a75;
+  --red-500: #d20f39;
+  --red-600: #b80c32;
+  --red-700: #9a0a2a;
+  --red-800: #7a0821;
 
   --border-subtle: rgba(76, 79, 105, 0.12);
   --border-medium: rgba(76, 79, 105, 0.2);
@@ -152,6 +159,13 @@
 
   --success: #a6e3a1;
   --warning: #f9e2af;
+  --red-50: rgba(243, 139, 168, 0.12);
+  --red-200: rgba(243, 139, 168, 0.28);
+  --red-400: #f5a3bb;
+  --red-500: #f38ba8;
+  --red-600: #f5a3bb;
+  --red-700: #f7bfd0;
+  --red-800: #fad4e0;
 
   --border-subtle: rgba(205, 214, 244, 0.1);
   --border-medium: rgba(205, 214, 244, 0.18);
@@ -230,9 +244,6 @@
   }
   .auth-shadow {
     @apply rounded-2xl bg-(--accent-light);
-  }
-  .clerk-subscriptions {
-    @apply container mx-auto flex min-h-screen w-full max-w-7xl flex-col items-center px-5 py-18 pb-12;
   }
   .page-title {
     @apply text-center text-3xl! font-bold;
@@ -627,7 +638,7 @@
     @apply max-w-[80%] rounded-2xl px-6 py-4 text-base leading-7 font-medium;
   }
   .transcript-bubble-user {
-    @apply rounded-br-sm bg-[(--color-brand)] text-white;
+    @apply rounded-br-sm bg-(--color-brand) text-white;
   }
   .transcript-bubble-assistant {
     @apply rounded-bl-sm bg-(--bg-secondary) text-(--text-primary);
@@ -748,6 +759,9 @@
       @apply text-red-600;
     }
   }
+  .upload-dropzone-action {
+    @apply rounded-md px-2 py-1 text-sm font-medium text-(--color-brand) underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--color-brand);
+  }
   .form-label {
     @apply mb-2 block text-lg font-medium text-(--text-primary);
   }
@@ -767,209 +781,4 @@
       transform: translateY(-2px);
     }
   }
-}
-
-/* ===========================================
-   CLERK AUTH OVERRIDES
-   =========================================== */
-.cl-formButtonPrimary {
-  border: none !important;
-  box-shadow: var(--shadow-soft) !important;
-  border-radius: 0.75rem !important;
-  background-color: var(--primary) !important;
-  color: var(--primary-foreground) !important;
-}
-
-.cl-formButtonPrimary:hover {
-  filter: brightness(1.1) !important;
-  box-shadow: var(--shadow-soft-md) !important;
-}
-
-.cl-pricingTableCardDescription {
-  margin-top: 12px !important;
-}
-
-.cl-pricingTableCard {
-  min-height: 420px !important;
-  display: flex !important;
-  flex-direction: column !important;
-}
-
-.cl-pricingTableCardContent {
-  flex: 1 !important;
-}
-
-.cl-formFieldInput__identifier,
-.cl-formFieldInput__password,
-.cl-formFieldInput__emailAddress,
-.cl-formFieldInput__firstName,
-.cl-formFieldInput__lastName,
-.cl-formFieldInput {
-  position: relative !important;
-  z-index: 10 !important;
-  border: 1px solid var(--border-subtle) !important;
-  background-color: var(--bg-card) !important;
-  box-shadow: var(--shadow-soft-sm) !important;
-  border-radius: 0.75rem !important;
-}
-
-.cl-formFieldInput:focus {
-  border-color: var(--primary) !important;
-  box-shadow:
-    var(--shadow-soft),
-    0 0 0 2px rgba(30, 102, 245, 0.15) !important;
-}
-
-.cl-socialButtonsBlockButton,
-.cl-socialButtonsBlockButton__google,
-.cl-socialButtonsBlockButton__facebook {
-  box-shadow: var(--shadow-soft-sm) !important;
-  border-radius: 0.75rem !important;
-  border: 1px solid var(--border-subtle) !important;
-}
-
-.cl-socialButtonsBlockButton:hover {
-  box-shadow: var(--shadow-soft) !important;
-  background-color: var(--bg-secondary) !important;
-}
-
-.clerk-pricing-table-wrapper {
-  padding: 0.5rem;
-  background: var(--bg-primary);
-}
-
-.clerk-pricing-table-wrapper > div,
-.clerk-pricing-table-wrapper > div > div {
-  display: flex !important;
-  justify-content: center !important;
-  flex-wrap: wrap !important;
-  gap: 20px !important;
-}
-
-.clerk-pricing-table-wrapper > div > div > div {
-  position: relative;
-  flex: 1 1 300px !important;
-  max-width: 400px !important;
-}
-
-.clerk-pricing-table-wrapper [class*="card"],
-.clerk-pricing-table-wrapper > div > div > div {
-  position: relative;
-  z-index: 1;
-  border: 1px solid var(--border-subtle) !important;
-  border-radius: 1rem !important;
-  background-color: var(--bg-card) !important;
-  box-shadow: var(--shadow-soft-md) !important;
-}
-
-.cl-drawerRoot {
-  z-index: 100 !important;
-}
-
-.cl-drawerRoot .cl-formButtonPrimary,
-.cl-modalContent .cl-formButtonPrimary,
-.cl-checkoutForm .cl-formButtonPrimary,
-[data-clerk-component] button[class*="formButtonPrimary"] {
-  color: var(--primary-foreground) !important;
-}
-
-button[class*="cl-formButtonPrimary"],
-button[class*="cl-button"][data-variant="solid"][data-color="primary"],
-button[class*="cl-button"][data-variant="solid"][data-color="primary"] *,
-.cl-main button[type="submit"][class*="formButtonPrimary"],
-.cl-footer button[class*="formButtonPrimary"] {
-  color: var(--primary-foreground) !important;
-}
-
-[id^="cl-"] button[class*="formButtonPrimary"],
-[class^="cl-"] button[class*="formButtonPrimary"],
-.cl-modalBackdrop ~ div button[class*="formButtonPrimary"] {
-  color: var(--primary-foreground) !important;
-}
-
-[class*="cl-"] button[class*="formButtonPrimary"],
-[class*="cl-"] button[class*="formButtonPrimary"] *,
-button[class*="cl-formButtonPrimary"],
-button[class*="cl-formButtonPrimary"] * {
-  color: var(--primary-foreground) !important;
-}
-
-.cl-segmentedControlButton,
-.cl-segmentedControlButton *,
-button[data-variant="unstyled"],
-button[data-variant="unstyled"] *,
-[class*="cl-segmentedControl"] button,
-[class*="cl-segmentedControl"] button *,
-.cl-tabButton,
-.cl-tabButton *,
-[role="tablist"] button,
-[role="tablist"] button * {
-  color: var(--text-primary) !important;
-}
-
-.clerk-pricing-table-wrapper [class*="card"] > *,
-.clerk-pricing-table-wrapper > div > div > div > * {
-  background-color: var(--bg-card) !important;
-}
-
-.clerk-pricing-table-wrapper button {
-  height: 3rem !important;
-  min-height: 3rem !important;
-  font-size: 1.125rem !important;
-  background-color: var(--primary) !important;
-  color: var(--primary-foreground) !important;
-  font-weight: 500 !important;
-  border: none !important;
-  box-shadow: var(--shadow-soft) !important;
-  text-transform: none !important;
-  border-radius: 0.75rem !important;
-  transition: all 0.2s ease !important;
-}
-
-.clerk-pricing-table-wrapper button:hover {
-  filter: brightness(1.1) !important;
-  box-shadow: var(--shadow-soft-md) !important;
-  transform: translateY(-1px);
-}
-
-.clerk-pricing-table-wrapper button:disabled,
-.clerk-pricing-table-wrapper button[disabled],
-.clerk-pricing-table-wrapper button[aria-disabled="true"] {
-  background-color: var(--bg-secondary) !important;
-  color: var(--text-primary) !important;
-  cursor: default !important;
-  box-shadow: none !important;
-  opacity: 1 !important;
-  transform: none !important;
-  font-weight: 600 !important;
-  filter: none !important;
-}
-
-/* Note: :first-child assumes active plan is always first card */
-.cl-pricingTableCard:first-child {
-  border: 2px solid var(--color-brand) !important;
-}
-
-.cl-badge,
-.cl-pricingTableCard [class*="badge"],
-.cl-pricingTableCard span[class*="Badge"] {
-  background-color: var(--color-brand) !important;
-  color: white !important;
-  font-weight: 600 !important;
-  padding: 0.25rem 0.75rem !important;
-  border-radius: 9999px !important;
-}
-
-/* Note: Hardcoded English text - handle in JS for i18n */
-.cl-pricingTableCard:first-child .cl-pricingTableCardContent::after {
-  content: "Your Current Plan";
-  display: block;
-  text-align: center;
-  padding: 0.75rem 1.5rem;
-  margin-top: 1rem;
-  background-color: var(--bg-secondary) !important;
-  color: var(--text-primary) !important;
-  font-weight: 600;
-  border-radius: 0.75rem;
-  font-size: 1.125rem;
 }
