@@ -5,9 +5,9 @@ const NewBookPage = () => {
     <main className="wrapper container">
       <div className="mx-auto max-w-180 space-y-10">
         <section className="flex flex-col gap-5">
-          <h1 className="page-title-xl">Add new Book</h1>
+          <h1 className="page-title-xl">Add a document</h1>
           <p className="subtitle">
-            Upload your documents to generate insightful facts and learn from them.
+            Upload a PDF, choose a voice, and start a conversation grounded in the text.
           </p>
         </section>
 

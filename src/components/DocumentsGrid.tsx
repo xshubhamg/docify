@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Search } from "lucide-react";
 
 import BookCard from "@/components/BookCard";
@@ -39,9 +40,23 @@ export default function DocumentsGrid({ documents }: { documents: DocumentCardIt
             <BookCard key={document.slug} {...document} />
           ))}
         </div>
+      ) : documents.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-(--border-medium) px-6 py-16 text-center">
+          <p className="text-lg font-semibold text-(--text-primary)">No documents yet</p>
+          <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-(--text-muted)">
+            Upload a PDF to get a reader with page navigation and a voice conversation
+            grounded in its text.
+          </p>
+          <Link
+            href="/documents/new"
+            className="btn-primary font-mona-sans mt-6 inline-flex items-center gap-2"
+          >
+            Upload your first PDF
+          </Link>
+        </div>
       ) : (
         <p className="py-16 text-center text-(--text-muted)">
-          No documents match &ldquo;{query}&rdquo;
+          No documents match &ldquo;{query}&rdquo;. Try a different title or author.
         </p>
       )}
     </section>
