@@ -11,9 +11,19 @@ import {
   assertImageConstraints,
   assertOwnedBlobPathname,
   assertPdfConstraints,
+  createSlug,
   ensureVoiceKey,
   isImageTooLarge,
 } from "@/lib/documents/utils";
+
+const MAX_SLUG_ATTEMPTS = 5;
+
+class SlugConflictError extends Error {
+  constructor() {
+    super("Document slug already exists.");
+    this.name = "SlugConflictError";
+  }
+}
 
 export async function createDocumentFromUploads(
   userId: string,
@@ -55,39 +65,16 @@ export async function createDocumentFromUploads(
     assertPdfConstraints(pdfResult.blob.size, pdfResult.blob.contentType);
 
     const { segments } = await extractPdfPages(pdfResult.stream);
-    const slug = await getUniqueDocumentSlug(payload.title);
     const documentId = crypto.randomUUID();
-
-    await db.transaction(async (tx) => {
-      await tx.insert(document).values({
-        id: documentId,
-        userId,
-        title: payload.title.trim(),
-        slug,
-        author: payload.author.trim(),
-        voiceId: payload.voice,
-        fileUrl: payload.pdf.url,
-        fileBlobKey: payload.pdf.pathname,
-        coverUrl,
-        coverBlobKey,
-        fileSize: pdfResult.blob.size,
-        mimeType: pdfResult.blob.contentType,
-        totalSegments: segments.length,
-      });
-
-      if (segments.length) {
-        await tx.insert(documentSegment).values(
-          segments.map((segment) => ({
-            id: crypto.randomUUID(),
-            userId,
-            documentId,
-            content: segment.content,
-            segmentIndex: segment.segmentIndex,
-            pageNumber: segment.pageNumber ?? null,
-            wordCount: segment.wordCount,
-          })),
-        );
-      }
+    const slug = await insertWithUniqueSlug({
+      userId,
+      documentId,
+      payload,
+      segments,
+      fileSize: pdfResult.blob.size,
+      mimeType: pdfResult.blob.contentType,
+      coverUrl,
+      coverBlobKey,
     });
 
     return {
@@ -103,4 +90,87 @@ export async function createDocumentFromUploads(
 
     throw error;
   }
+}
+
+async function insertWithUniqueSlug({
+  userId,
+  documentId,
+  payload,
+  segments,
+  fileSize,
+  mimeType,
+  coverUrl,
+  coverBlobKey,
+}: {
+  userId: string;
+  documentId: string;
+  payload: CreateDocumentPayload;
+  segments: Awaited<ReturnType<typeof extractPdfPages>>["segments"];
+  fileSize: number;
+  mimeType: string;
+  coverUrl: string | null;
+  coverBlobKey: string | null;
+}) {
+  const baseSlug = createSlug(payload.title);
+  const firstCandidate = await getUniqueDocumentSlug(payload.title);
+
+  for (let attempt = 0; attempt < MAX_SLUG_ATTEMPTS; attempt += 1) {
+    const slug =
+      attempt === 0 ? firstCandidate : `${baseSlug}-${crypto.randomUUID().slice(0, 8)}`;
+
+    try {
+      await db.transaction(async (tx) => {
+        const [created] = await tx
+          .insert(document)
+          .values({
+            id: documentId,
+            userId,
+            title: payload.title.trim(),
+            slug,
+            author: payload.author.trim(),
+            voiceId: payload.voice,
+            fileUrl: payload.pdf.url,
+            fileBlobKey: payload.pdf.pathname,
+            coverUrl,
+            coverBlobKey,
+            fileSize,
+            mimeType,
+            totalSegments: segments.length,
+          })
+          .onConflictDoNothing({ target: document.slug })
+          .returning({ id: document.id });
+
+        if (!created) {
+          throw new SlugConflictError();
+        }
+
+        if (segments.length) {
+          await tx.insert(documentSegment).values(
+            segments.map((segment) => ({
+              id: crypto.randomUUID(),
+              userId,
+              documentId,
+              content: segment.content,
+              segmentIndex: segment.segmentIndex,
+              pageNumber: segment.pageNumber ?? null,
+              wordCount: segment.wordCount,
+            })),
+          );
+        }
+      });
+
+      return slug;
+    } catch (error) {
+      if (error instanceof SlugConflictError) {
+        continue;
+      }
+
+      throw error;
+    }
+  }
+
+  throw new DocumentFlowError(
+    "Could not allocate a unique document URL. Please try again.",
+    409,
+  );
 }
