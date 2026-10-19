@@ -140,19 +140,21 @@ Without VAPI keys the reader still works; the voice panel explains what is missi
 
 ## Scripts
 
-| Command             | Purpose                     |
-| ------------------- | --------------------------- |
-| `bun dev`           | Development server          |
-| `bun run build`     | Production build            |
-| `bun start`         | Serve the production build  |
-| `bun run lint`      | ESLint                      |
-| `bun run typecheck` | TypeScript, no emit         |
-| `bun run format`    | Prettier                    |
-| `bun run check`     | Lint + typecheck            |
-| `bun db:generate`   | Generate Drizzle migrations |
-| `bun db:migrate`    | Apply migrations            |
-| `bun db:push`       | Push schema (dev only)      |
-| `bun db:studio`     | Drizzle Studio              |
+| Command                 | Purpose                     |
+| ----------------------- | --------------------------- |
+| `bun dev`               | Development server          |
+| `bun run build`         | Production build            |
+| `bun start`             | Serve the production build  |
+| `bun run lint`          | ESLint                      |
+| `bun run typecheck`     | TypeScript, no emit         |
+| `bun run format`        | Prettier                    |
+| `bun run check`         | Lint + typecheck + tests    |
+| `bun run test`          | Unit tests (Vitest)         |
+| `bun run test:coverage` | Tests + coverage thresholds |
+| `bun db:generate`       | Generate Drizzle migrations |
+| `bun db:migrate`        | Apply migrations            |
+| `bun db:push`           | Push schema (dev only)      |
+| `bun db:studio`         | Drizzle Studio              |
 
 ## Project structure
 

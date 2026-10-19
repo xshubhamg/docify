@@ -12,8 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
-    // Generated assets (e.g. the synced pdfjs worker).
+    // Generated assets (e.g. the synced pdfjs worker) and test output.
     "public/**",
+    "coverage/**",
   ]),
 ]);
 

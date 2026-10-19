@@ -13,15 +13,17 @@ bun dev
 
 ## Scripts
 
-| Command                | Purpose              |
-| ---------------------- | -------------------- |
-| `bun dev`              | Start the dev server |
-| `bun run build`        | Production build     |
-| `bun run lint`         | ESLint               |
-| `bun run typecheck`    | TypeScript, no emit  |
-| `bun run format`       | Format with Prettier |
-| `bun run format:check` | Verify formatting    |
-| `bun run check`        | Lint + typecheck     |
+| Command                 | Purpose                  |
+| ----------------------- | ------------------------ |
+| `bun dev`               | Start the dev server     |
+| `bun run build`         | Production build         |
+| `bun run lint`          | ESLint                   |
+| `bun run typecheck`     | TypeScript, no emit      |
+| `bun run format`        | Format with Prettier     |
+| `bun run format:check`  | Verify formatting        |
+| `bun run check`         | Lint + typecheck + tests |
+| `bun run test`          | Unit tests (Vitest)      |
+| `bun run test:coverage` | Tests + coverage         |
 
 ## Commit convention
 
@@ -44,10 +46,24 @@ Scopes: `reader`, `ingest`, `auth`, `voice`, `blob`, `ui`, `db`, `api`,
 ## Pull requests
 
 - Keep PRs focused; prefer several small PRs over one large one.
-- Every commit must typecheck, lint, and build.
+- Every commit must typecheck, lint, test, and build.
 - UI changes need light **and** dark screenshots at mobile and desktop widths.
 - Update `AGENTS.md` and this file when behavior or conventions change.
 - Do not commit secrets. `.env*` is ignored except `.env.example`.
+
+## Testing
+
+Tests run with Vitest and do not need a database:
+
+```bash
+bun run test
+bun run test:coverage
+```
+
+Coverage thresholds (90%) apply to the pure domain modules in
+`src/lib/documents`. Integration tests for ingestion and queries are planned;
+when adding them, run Postgres locally and point a separate
+`DATABASE_URL_TEST` at it.
 
 ## Coding standards
 
