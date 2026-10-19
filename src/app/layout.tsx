@@ -18,9 +18,9 @@ const monaSans = Mona_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Docify",
+  title: "Docify — Voice-first document intelligence",
   description:
-    "Docify is a platform to upload documents and get AI powered insights and ask questions about the documents",
+    "Upload a PDF and hold a live voice conversation grounded in its text, with the source and transcript side by side.",
 };
 
 export default function RootLayout({
