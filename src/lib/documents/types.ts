@@ -38,7 +38,6 @@ export interface DocumentSegmentPreview {
   pageNumber: number | null;
   wordCount: number;
   preview: string;
-  content: string;
 }
 
 export interface DocumentContextSegment {

@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, sql } from "drizzle-orm";
 
 import { db } from "@/lib/db";
 import { document, documentSegment, voiceSession } from "@/lib/db/schema";
@@ -15,6 +15,8 @@ import { scoreSegmentContent, tokenizeQuery } from "@/lib/documents/search";
 
 const DEFAULT_COVER_URL = "/default-cover.svg";
 const CONTEXT_CONTENT_MAX_LENGTH = 1500;
+const SEGMENT_PREVIEW_SOURCE_LENGTH = 400;
+const SEGMENT_PREVIEW_LENGTH = 160;
 
 function buildCoverUrl(slug: string, hasCover: boolean) {
   if (!hasCover) {
@@ -24,16 +26,19 @@ function buildCoverUrl(slug: string, hasCover: boolean) {
   return `/api/documents/${slug}/cover`;
 }
 
-function toSegmentPreview(
-  segmentRow: typeof documentSegment.$inferSelect,
-): DocumentSegmentPreview {
+function toSegmentPreview(row: {
+  id: string;
+  segmentIndex: number;
+  pageNumber: number | null;
+  wordCount: number;
+  previewSource: string;
+}): DocumentSegmentPreview {
   return {
-    id: segmentRow.id,
-    segmentIndex: segmentRow.segmentIndex,
-    pageNumber: segmentRow.pageNumber,
-    wordCount: segmentRow.wordCount,
-    preview: truncateText(segmentRow.content, 160),
-    content: segmentRow.content,
+    id: row.id,
+    segmentIndex: row.segmentIndex,
+    pageNumber: row.pageNumber,
+    wordCount: row.wordCount,
+    preview: truncateText(row.previewSource, SEGMENT_PREVIEW_LENGTH),
   };
 }
 
@@ -134,8 +139,16 @@ export async function getDocumentReaderData(
     return null;
   }
 
+  // The reader only renders a short preview per segment. Selecting a bounded
+  // slice in Postgres keeps large documents from shipping megabytes of text.
   const segments = await db
-    .select()
+    .select({
+      id: documentSegment.id,
+      segmentIndex: documentSegment.segmentIndex,
+      pageNumber: documentSegment.pageNumber,
+      wordCount: documentSegment.wordCount,
+      previewSource: sql<string>`left(${documentSegment.content}, ${SEGMENT_PREVIEW_SOURCE_LENGTH})`,
+    })
     .from(documentSegment)
     .where(eq(documentSegment.documentId, doc.id))
     .orderBy(asc(documentSegment.segmentIndex));
