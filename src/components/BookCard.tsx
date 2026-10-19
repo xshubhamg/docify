@@ -1,8 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { BookCardProps } from "@/../types";
+import type { DocumentCardItem } from "@/lib/documents/types";
 
-export default function BookCard({ title, author, coverURL, slug }: BookCardProps) {
+export default function BookCard({ title, author, coverURL, slug }: DocumentCardItem) {
   return (
     <Link href={`/documents/${slug}`} className="group book-card">
       <div className="book-card-3d book-card-3d-hover">

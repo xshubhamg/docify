@@ -2,21 +2,18 @@
 
 import { useState } from "react";
 import { Search } from "lucide-react";
-import type { BookCardProps } from "@/../types";
-import { Input } from "@/components/ui/input";
+
 import BookCard from "@/components/BookCard";
+import { Input } from "@/components/ui/input";
+import type { DocumentCardItem } from "@/lib/documents/types";
 
-interface DocumentsGridProps {
-  books: BookCardProps[];
-}
-
-export default function DocumentsGrid({ books }: DocumentsGridProps) {
+export default function DocumentsGrid({ documents }: { documents: DocumentCardItem[] }) {
   const [query, setQuery] = useState("");
 
-  const filtered = books.filter(
-    (book) =>
-      book.title.toLowerCase().includes(query.toLowerCase()) ||
-      book.author.toLowerCase().includes(query.toLowerCase()),
+  const filtered = documents.filter(
+    (document) =>
+      document.title.toLowerCase().includes(query.toLowerCase()) ||
+      document.author.toLowerCase().includes(query.toLowerCase()),
   );
 
   return (
@@ -30,7 +27,7 @@ export default function DocumentsGrid({ books }: DocumentsGridProps) {
           <Input
             placeholder="Search documents..."
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(event) => setQuery(event.target.value)}
             className="pl-9"
           />
         </div>
@@ -38,8 +35,8 @@ export default function DocumentsGrid({ books }: DocumentsGridProps) {
 
       {filtered.length > 0 ? (
         <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-4 md:gap-7 lg:grid-cols-5">
-          {filtered.map((book) => (
-            <BookCard key={book.slug} {...book} />
+          {filtered.map((document) => (
+            <BookCard key={document.slug} {...document} />
           ))}
         </div>
       ) : (

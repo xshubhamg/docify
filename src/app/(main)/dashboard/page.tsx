@@ -39,7 +39,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Documents Section */}
-      <DocumentsGrid books={documents} />
+      <DocumentsGrid documents={documents} />
     </div>
   );
 }
