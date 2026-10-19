@@ -18,6 +18,22 @@ const googleSchema = z
     },
   );
 
+const rateLimitSchema = z
+  .object({
+    UPSTASH_REDIS_REST_URL: z.string().url().optional(),
+    UPSTASH_REDIS_REST_TOKEN: z.string().min(1).optional(),
+  })
+  .refine(
+    (value) =>
+      (!value.UPSTASH_REDIS_REST_URL && !value.UPSTASH_REDIS_REST_TOKEN) ||
+      (Boolean(value.UPSTASH_REDIS_REST_URL) && Boolean(value.UPSTASH_REDIS_REST_TOKEN)),
+    {
+      message:
+        "Set both UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN, or neither for the in-memory limiter.",
+      path: ["UPSTASH_REDIS_REST_URL"],
+    },
+  );
+
 const serverEnvSchema = z
   .object({
     NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
@@ -28,7 +44,8 @@ const serverEnvSchema = z
     BETTER_AUTH_URL: z.string().url("BETTER_AUTH_URL must be a valid URL."),
     BLOB_READ_WRITE_TOKEN: z.string().min(1, "BLOB_READ_WRITE_TOKEN is required."),
   })
-  .and(googleSchema);
+  .and(googleSchema)
+  .and(rateLimitSchema);
 
 const parsed = serverEnvSchema.safeParse(process.env);
 

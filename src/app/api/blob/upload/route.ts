@@ -8,6 +8,7 @@ import {
   MAX_FILE_SIZE,
   MAX_IMAGE_SIZE,
 } from "@/lib/constants";
+import { enforceRateLimit } from "@/lib/rate-limit";
 
 function parseClientPayload(payload: string | null) {
   if (!payload) {
@@ -26,6 +27,17 @@ function parseClientPayload(payload: string | null) {
 export async function POST(request: Request) {
   try {
     const session = await requireSession(request);
+    const limited = await enforceRateLimit({
+      name: "blob:upload",
+      identifier: session.user.id,
+      limit: 30,
+      windowSeconds: 600,
+    });
+
+    if (limited) {
+      return limited;
+    }
+
     const body = (await request.json()) as HandleUploadBody;
 
     const jsonResponse = await handleUpload({

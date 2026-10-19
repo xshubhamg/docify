@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { requireSession, toErrorResponse } from "@/lib/api";
 import { searchDocumentSegments } from "@/lib/documents/queries";
+import { enforceRateLimit } from "@/lib/rate-limit";
 
 const DEFAULT_LIMIT = 5;
 const MAX_LIMIT = 8;
@@ -21,6 +22,17 @@ export async function GET(
 ) {
   try {
     const session = await requireSession(request);
+    const limited = await enforceRateLimit({
+      name: "context:search",
+      identifier: session.user.id,
+      limit: 120,
+      windowSeconds: 60,
+    });
+
+    if (limited) {
+      return limited;
+    }
+
     const { slug } = await params;
     const url = new URL(request.url);
     const query = (url.searchParams.get("query") ?? "").slice(0, 500);

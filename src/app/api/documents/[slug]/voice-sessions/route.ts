@@ -6,6 +6,7 @@ import {
   getDocumentBySlugForUser,
   listVoiceSessionsForDocument,
 } from "@/lib/documents/queries";
+import { enforceRateLimit } from "@/lib/rate-limit";
 
 export async function GET(
   request: Request,
@@ -34,6 +35,17 @@ export async function POST(
 ) {
   try {
     const session = await requireSession(request);
+    const limited = await enforceRateLimit({
+      name: "voice:create",
+      identifier: session.user.id,
+      limit: 20,
+      windowSeconds: 600,
+    });
+
+    if (limited) {
+      return limited;
+    }
+
     const { slug } = await params;
     const doc = await getDocumentBySlugForUser(session.user.id, slug);
 

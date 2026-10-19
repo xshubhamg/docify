@@ -114,16 +114,18 @@ cp .env.example .env.local
 
 Fill in `.env.local`:
 
-| Variable                      | Required  | Notes                          |
-| ----------------------------- | --------- | ------------------------------ |
-| `DATABASE_URL`                | yes       | Postgres connection string     |
-| `BETTER_AUTH_SECRET`          | yes       | `openssl rand -base64 32`      |
-| `BETTER_AUTH_URL`             | yes       | `http://localhost:3000` in dev |
-| `BLOB_READ_WRITE_TOKEN`       | yes       | Vercel → Storage → Blob        |
-| `GOOGLE_CLIENT_ID`            | for OAuth | Google Cloud console           |
-| `GOOGLE_CLIENT_SECRET`        | for OAuth | Google Cloud console           |
-| `NEXT_PUBLIC_VAPI_PUBLIC_KEY` | for voice | VAPI dashboard → API keys      |
-| `NEXT_PUBLIC_ASSISTANT_ID`    | for voice | VAPI dashboard → Assistants    |
+| Variable                      | Required    | Notes                          |
+| ----------------------------- | ----------- | ------------------------------ |
+| `DATABASE_URL`                | yes         | Postgres connection string     |
+| `BETTER_AUTH_SECRET`          | yes         | `openssl rand -base64 32`      |
+| `BETTER_AUTH_URL`             | yes         | `http://localhost:3000` in dev |
+| `BLOB_READ_WRITE_TOKEN`       | yes         | Vercel → Storage → Blob        |
+| `GOOGLE_CLIENT_ID`            | for OAuth   | Google Cloud console           |
+| `GOOGLE_CLIENT_SECRET`        | for OAuth   | Google Cloud console           |
+| `NEXT_PUBLIC_VAPI_PUBLIC_KEY` | for voice   | VAPI dashboard → API keys      |
+| `NEXT_PUBLIC_ASSISTANT_ID`    | for voice   | VAPI dashboard → Assistants    |
+| `UPSTASH_REDIS_REST_URL`      | recommended | Shared rate limiting           |
+| `UPSTASH_REDIS_REST_TOKEN`    | recommended | Shared rate limiting           |
 
 Run the database migrations and start the app:
 
